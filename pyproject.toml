@@ -58,7 +58,7 @@ explicit = true
 # Benchmarks and notebooks live in the repository but not in the package people install.
 # (The wheel only ever contains src/torchrolling; this keeps them out of the sdist too.)
 [tool.hatch.build.targets.sdist]
-exclude = ["bench", "notebooks", ".github"]
+exclude = ["bench", "notebooks", "docs", ".github"]
 
 [tool.hatch.version]
 path = "src/torchrolling/__init__.py"

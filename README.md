@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/LenaBarretta/torchrolling/main/docs/logo.png" alt="torchrolling logo" width="160">
+</p>
+
 # torchrolling
 
 [![PyPI](https://img.shields.io/pypi/v/torchrolling)](https://pypi.org/project/torchrolling/)
