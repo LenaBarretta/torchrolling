@@ -50,7 +50,13 @@ def backend(request: pytest.FixtureRequest) -> Iterator[str]:
         return
     from torchrolling import _triton  # pragma: no cover - needs Triton
 
+    tiny = {group: (32, 4) for group in _triton.ROLLING_DEFAULT}  # pragma: no cover
     with mock.patch.multiple(  # pragma: no cover - needs Triton
-        _triton, TILE={}, SMALL_TILE=32, EWM_BLOCK=16, SORT_WINDOW=1
+        _triton,
+        ROLLING_CONFIGS={group: {} for group in tiny},
+        ROLLING_DEFAULT=tiny,
+        QUANTILE_CONFIGS={},
+        SORT_WINDOW=1,
+        EWM_CONFIG=(16, 4),
     ):
         yield name

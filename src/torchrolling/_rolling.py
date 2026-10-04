@@ -319,10 +319,16 @@ class Rolling:
         x = kernel_dtype(self._orig)
         window = self._window
         if _common.use_triton(x, window=window, limit="QUANTILE_WINDOW"):  # pragma: no cover
-            out = _triton.quantile(
-                x, window, self._shift, self._min_periods, float(q), interpolation
+            out = _common.run_kernel(
+                lambda: _triton.quantile(
+                    x, window, self._shift, self._min_periods, float(q), interpolation
+                ),
+                self._dtype,
+                None,
+                self._dim,
             )
-            return out.to(self._dtype).movedim(-1, self._dim)
+            if out is not None:
+                return out
         return self._quantile_torch(x, float(q), interpolation)
 
     def _quantile_torch(self, x: Tensor, q: float, interpolation: str) -> Tensor:
@@ -363,20 +369,21 @@ class Rolling:
             *tensors, window=self._window, limit="MAX_WINDOW"
         ):
             return None
-        out = _triton.rolling(  # pragma: no cover - needs Triton
-            kernel_dtype(self._orig),
-            None if other is None else kernel_dtype(other),
-            self._window,
-            self._shift,
-            self._min_periods,
-            ddof,
-            stat,
-            dtype_name(self._acc),
+        return _common.run_kernel(  # pragma: no cover - needs Triton
+            lambda: _triton.rolling(
+                kernel_dtype(self._orig),
+                None if other is None else kernel_dtype(other),
+                self._window,
+                self._shift,
+                self._min_periods,
+                ddof,
+                stat,
+                dtype_name(self._acc),
+            ),
+            self._dtype,
+            other,
+            self._dim,
         )
-        dtype = (
-            self._dtype if other is None else torch.promote_types(self._dtype, other.dtype)
-        )  # pragma: no cover
-        return out.to(dtype).movedim(-1, self._dim)  # pragma: no cover - needs Triton
 
     def _other(self, other: Tensor) -> Tensor:
         """The second series of cov/corr, with its time dimension last."""

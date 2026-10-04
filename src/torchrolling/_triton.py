@@ -53,17 +53,23 @@ STATS = {
 }
 EWM_MODES = {"mean": 0, "var": 1, "cov": 2, "corr": 3}
 
-# Largest window the rolling kernel takes; beyond it the torch code is already efficient.
+# Largest window the rolling and quantile kernels take; beyond it the torch code is already
+# efficient.
 MAX_WINDOW = 4096
-# Quantile windows up to this size sort every window; larger ones use the select kernel,
-# up to QUANTILE_WINDOW.
-SORT_WINDOW = 64
 QUANTILE_WINDOW = 4096
-# Elements per rolling tile: more statistics keep more tensors alive, so smaller tiles.
-TILE = {0: 4096, 1: 4096, 2: 4096, 7: 4096, 8: 4096, 3: 2048, 4: 2048, 9: 2048}
-SMALL_TILE = 1024
-# Time steps per chunk of the EWM kernel.
-EWM_BLOCK = 1024
+
+# Launch configurations; bench/tune.py measures them. Rolling statistics come in groups by
+# how many tensors they keep alive: {group: {BLOCK_W: (tile elements, num_warps)}}.
+GROUPS = {0: "light", 1: "light", 2: "light", 7: "light", 8: "light"}
+GROUPS |= {3: "moments", 4: "moments", 9: "moments", 5: "heavy", 6: "heavy", 10: "heavy"}
+ROLLING_CONFIGS: dict[str, dict[int, tuple[int, int]]] = {"light": {}, "moments": {}, "heavy": {}}
+ROLLING_DEFAULT = {"light": (2048, 4), "moments": (1024, 4), "heavy": (1024, 4)}
+# Quantiles, by next_power_of_2(window): ("sort", 0, num_warps) sorts every window,
+# ("select", BLOCK_T, num_warps) uses the select kernel.
+QUANTILE_CONFIGS: dict[int, tuple[str, int, int]] = {}
+SORT_WINDOW = 64  # without an entry above: sort up to here, select beyond
+# EWM: (time steps per chunk, num_warps).
+EWM_CONFIG = (1024, 4)
 
 COUNT = tl.constexpr(0)
 SUM = tl.constexpr(1)
@@ -584,7 +590,9 @@ def _rolling(
     out_dtype = x.dtype if stat in ("min", "max") else getattr(torch, acc)
     out = torch.empty(flat.shape, dtype=out_dtype, device=x.device)
     block_w = max(16, triton.next_power_of_2(window))
-    rows = max(1, TILE.get(code, SMALL_TILE) // block_w)
+    group = GROUPS[code]
+    tile, warps = ROLLING_CONFIGS[group].get(block_w, ROLLING_DEFAULT[group])
+    rows = max(1, tile // block_w)
     tiles = triton.cdiv((length - 1 + shift) // window + 1, rows)
     _rolling_kernel[(flat.shape[0] * tiles,)](
         flat,
@@ -601,6 +609,7 @@ def _rolling(
         ACC=_TL[acc],
         ROWS=rows,
         BLOCK_W=block_w,
+        num_warps=warps,
     )
     return out.reshape(x.shape)
 
@@ -615,6 +624,11 @@ def _quantile(
     q_tensor = torch.tensor([q], dtype=torch.float64, device=x.device)
     mode = INTERPOLATIONS[interpolation]
     if window <= SORT_WINDOW:
+        default = ("sort", 0, 4)
+    else:
+        default = ("select", min(512, max(128, triton.next_power_of_2(window))), 4)
+    kind, block_t, warps = QUANTILE_CONFIGS.get(triton.next_power_of_2(window), default)
+    if kind == "sort":
         block_w = triton.next_power_of_2(window)
         block_t = max(1, min(64, 4096 // block_w))
         tiles = triton.cdiv(length, block_t)
@@ -630,9 +644,9 @@ def _quantile(
             MODE=mode,
             BLOCK_T=block_t,
             BLOCK_W=block_w,
+            num_warps=warps,
         )
         return out.reshape(x.shape)
-    block_t = min(512, max(128, triton.next_power_of_2(window)))
     seg = triton.next_power_of_2(block_t + window - 1)
     tiles = triton.cdiv(length, block_t)
     num_tiles = flat.shape[0] * tiles
@@ -658,6 +672,7 @@ def _quantile(
         SEG=seg,
         IDX_BITS=max(1, (seg - 1).bit_length()),
         WIDE=x.dtype == torch.float64,
+        num_warps=warps,
     )
     return out.reshape(x.shape)
 
@@ -697,7 +712,8 @@ def _ewm(
         ADJUST=adjust,
         IGNORE_NA=ignore_na,
         ACC=_TL[acc],
-        BLOCK=EWM_BLOCK,
+        BLOCK=EWM_CONFIG[0],
+        num_warps=EWM_CONFIG[1],
     )
     return out.reshape(x.shape)
 

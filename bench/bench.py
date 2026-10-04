@@ -220,7 +220,12 @@ def main() -> None:
         default=10_000_000,
         help="skip CPU libraries on bigger inputs (they get slow)",
     )
+    parser.add_argument("--tuning", help="kernel configurations from bench/tune.py")
     args = parser.parse_args()
+    if args.tuning:
+        import tune
+
+        tune.apply(args.tuning)
     if torch.cuda.is_available():
         device = torch.cuda.get_device_name(0)
     else:
@@ -230,7 +235,12 @@ def main() -> None:
     rows = run(QUICK if args.quick else FULL, args.repeats, args.max_cpu_elements)
     RESULTS.mkdir(exist_ok=True)
     slug = re.sub(r"[^a-z0-9]+", "-", device.lower()).strip("-")
-    meta = {"device": device, "torch": torch.__version__, "torchrolling": torchrolling.__version__}
+    meta = {
+        "device": device,
+        "torch": torch.__version__,
+        "torchrolling": torchrolling.__version__,
+        "tuning": args.tuning,
+    }
     (RESULTS / f"{slug}.json").write_text(json.dumps({**meta, "rows": rows}, indent=1))
     (RESULTS / f"{slug}.md").write_text(markdown(rows, device))
     print(f"\nWrote {RESULTS / slug}.json and .md")

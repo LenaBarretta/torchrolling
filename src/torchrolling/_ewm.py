@@ -214,22 +214,23 @@ class Ewm:
         tensors = [self._orig] if other is None else [self._orig, other]
         if self._acc not in (torch.float32, torch.float64) or not _common.use_triton(*tensors):
             return None
-        out = _triton.ewm(  # pragma: no cover - needs Triton
-            kernel_dtype(self._orig),
-            None if other is None else kernel_dtype(other),
-            self._alpha,
-            self._min_periods,
-            mode,
-            bias,
-            sqrt,
-            self._adjust,
-            self._ignore_na,
-            dtype_name(self._acc),
+        return _common.run_kernel(  # pragma: no cover - needs Triton
+            lambda: _triton.ewm(
+                kernel_dtype(self._orig),
+                None if other is None else kernel_dtype(other),
+                self._alpha,
+                self._min_periods,
+                mode,
+                bias,
+                sqrt,
+                self._adjust,
+                self._ignore_na,
+                dtype_name(self._acc),
+            ),
+            self._dtype,
+            other,
+            self._dim,
         )
-        dtype = (
-            self._dtype if other is None else torch.promote_types(self._dtype, other.dtype)
-        )  # pragma: no cover
-        return out.to(dtype).movedim(-1, self._dim)  # pragma: no cover - needs Triton
 
     def _cov(self, y: Tensor | None, bias: bool) -> Tensor:
         """Covariance of ``x`` with ``y``, or variance of ``x`` when ``y`` is None."""

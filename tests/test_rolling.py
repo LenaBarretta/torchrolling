@@ -6,7 +6,7 @@ import pytest
 import torch
 
 import torchrolling
-from torchrolling import Rolling
+from torchrolling import Rolling, _common
 
 METHODS = ["count", "sum", "mean", "var", "std", "skew", "kurt", "min", "max"]
 PAIRWISE = ["cov", "corr"]
@@ -207,3 +207,22 @@ def test_bad_inputs() -> None:
         torchrolling.rolling(torch.zeros(3, dtype=torch.complex64), 2)
     with pytest.raises(ValueError, match="at least one dimension"):
         torchrolling.rolling(torch.tensor(1.0), 2)
+
+
+def test_failing_kernel_falls_back_to_torch(monkeypatch: pytest.MonkeyPatch) -> None:
+    kernels = _common._triton  # type: ignore[attr-defined]
+    if kernels is None:
+        pytest.skip("needs Triton")
+    x = torch.randn(3, 50, dtype=torch.float64)
+    want = torchrolling.rolling(x, 5).std()
+
+    def broken(*args: object) -> torch.Tensor:
+        raise RuntimeError("no kernel for this GPU")
+
+    monkeypatch.setattr(_common, "STRICT", False)
+    monkeypatch.setattr(_common, "KERNELS_OK", True)
+    monkeypatch.setattr(kernels, "rolling", broken)
+    with pytest.warns(RuntimeWarning, match="Triton kernels failed"):
+        got = torchrolling.rolling(x, 5).std()
+    torch.testing.assert_close(got, want, equal_nan=True)
+    assert not _common.KERNELS_OK

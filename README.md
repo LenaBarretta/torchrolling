@@ -173,6 +173,10 @@ _GPU results will be added after the first Kaggle run._
 On the CPU, use pandas or polars: they are faster there. torchrolling is for data that is
 already on the GPU.
 
+The kernels' launch configurations were tuned on a T4. Results are the same on every GPU;
+only speed can differ. On a GPU or system where a kernel cannot run, torchrolling warns once
+and computes the same statistics with plain torch operations.
+
 ## License
 
 MIT

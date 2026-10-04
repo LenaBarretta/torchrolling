@@ -2,6 +2,10 @@
 
 from __future__ import annotations
 
+import functools
+import warnings
+from collections.abc import Callable
+
 import torch
 from torch import Tensor
 
@@ -47,16 +51,45 @@ def accumulator(dtype: torch.dtype, acc_dtype: torch.dtype | None) -> torch.dtyp
     return acc_dtype
 
 
+# Tests set this, so that a kernel that fails raises instead of falling back to torch.
+STRICT = False
+# Cleared when a kernel fails on this machine: from then on, everything runs on torch.
+KERNELS_OK = True
+
+
 def use_triton(*tensors: Tensor, window: int = 0, limit: str = "") -> bool:
     """Whether the Triton kernels can compute this: CUDA (or the interpreter, in tests), no
     gradients needed, and ``window`` within the kernel's limit (``_triton.<limit>``)."""
     x = tensors[0]
     return (
-        _triton is not None
+        KERNELS_OK
+        and _triton is not None
         and x.numel() > 0
         and (not limit or window <= getattr(_triton, limit))
-        and (x.is_cuda or _triton.INTERPRET)
+        and ((x.is_cuda and _supported(x.device)) or _triton.INTERPRET)
         and not (torch.is_grad_enabled() and any(t.requires_grad for t in tensors))
+    )
+
+
+@functools.cache
+def _supported(device: torch.device) -> bool:  # pragma: no cover - needs a GPU
+    # Triton compiles for compute capability 7.0 (Volta) and newer.
+    return torch.version.hip is not None or torch.cuda.get_device_capability(device) >= (7, 0)
+
+
+def kernel_failed(error: Exception) -> None:  # pragma: no cover - needs Triton
+    """A kernel cannot run here (an unsupported GPU or Triton version): warn once, and use
+    the torch code, which gives the same results, from now on."""
+    if STRICT:
+        raise error
+    global KERNELS_OK
+    KERNELS_OK = False
+    warnings.warn(
+        f"torchrolling's Triton kernels failed on this machine ({type(error).__name__}: "
+        f"{str(error).splitlines()[0] if str(error) else ''}); using the slower torch code "
+        "from now on. Please report it at https://github.com/LenaBarretta/torchrolling/issues",
+        RuntimeWarning,
+        stacklevel=4,
     )
 
 
@@ -67,3 +100,18 @@ def kernel_dtype(x: Tensor) -> Tensor:
 
 def dtype_name(dtype: torch.dtype) -> str:
     return "float64" if dtype == torch.float64 else "float32"  # pragma: no cover - needs Triton
+
+
+def run_kernel(  # pragma: no cover - needs Triton
+    launch: Callable[[], Tensor], dtype: torch.dtype, other: Tensor | None, dim: int
+) -> Tensor | None:
+    """Run a Triton kernel and shape its result like the torch code's (``dtype``, promoted
+    with ``other``'s, and the time dimension back at ``dim``). None if the kernel failed."""
+    try:
+        out = launch()
+    except Exception as error:
+        kernel_failed(error)
+        return None
+    if other is not None:
+        dtype = torch.promote_types(dtype, other.dtype)
+    return out.to(dtype).movedim(-1, dim)
