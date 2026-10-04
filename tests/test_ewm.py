@@ -117,7 +117,7 @@ pairs = st.integers(0, 40).flatmap(
 @settings(max_examples=300, deadline=None)
 @given(data=st.lists(values, max_size=40), params=cases())
 def test_matches_pandas(
-    method: str, kw: dict[str, bool], data: list[float], params: dict[str, Any]
+    backend: str, method: str, kw: dict[str, bool], data: list[float], params: dict[str, Any]
 ) -> None:
     if method == "mean" and not params["adjust"] and not params["ignore_na"]:
         assume(all(map(math.isfinite, data)))  # see exact() on pandas 3.0's mean
@@ -130,7 +130,11 @@ def test_matches_pandas(
 @settings(max_examples=200, deadline=None)
 @given(pair=pairs, params=cases())
 def test_pairwise_matches_pandas(
-    method: str, kw: dict[str, bool], pair: tuple[list[float], list[float]], params: dict[str, Any]
+    backend: str,
+    method: str,
+    kw: dict[str, bool],
+    pair: tuple[list[float], list[float]],
+    params: dict[str, Any],
 ) -> None:
     x, y = (pd.Series(v, dtype="float64") for v in pair)
     want = getattr(x.ewm(**params), method)(y, **kw)
@@ -142,7 +146,7 @@ def test_pairwise_matches_pandas(
 @settings(max_examples=300, deadline=None)
 @given(pair=pairs, params=cases(), same=st.booleans())
 def test_matches_exact_pandas_algorithm(
-    pair: tuple[list[float], list[float]], params: dict[str, Any], same: bool
+    backend: str, pair: tuple[list[float], list[float]], params: dict[str, Any], same: bool
 ) -> None:
     x, y = (pair[0], pair[0]) if same else pair
     tx, ty = (torch.tensor(v, dtype=torch.float64) for v in (x, y))
@@ -156,7 +160,7 @@ def test_matches_exact_pandas_algorithm(
 
 @pytest.mark.parametrize("method", ["mean", "var", "std"])
 @pytest.mark.parametrize("adjust", [True, False])
-def test_long_series(method: str, adjust: bool) -> None:
+def test_long_series(backend: str, method: str, adjust: bool) -> None:
     # Longer than _SCAN_BLOCK ** 2 steps, so the scan recurses twice.
     rng = np.random.default_rng(0)
     data = rng.standard_normal(10_000).cumsum() + 1e4
@@ -166,7 +170,7 @@ def test_long_series(method: str, adjust: bool) -> None:
     check(got, want)
 
 
-def test_constant_series_has_zero_variance() -> None:
+def test_constant_series_has_zero_variance(backend: str) -> None:
     x = torch.full((50,), 3.7, dtype=torch.float64)
     x[10] = math.nan
     out = torchrolling.ewm(x, alpha=0.3).var(bias=True)
@@ -174,7 +178,7 @@ def test_constant_series_has_zero_variance() -> None:
     assert torchrolling.ewm(x, alpha=0.3).corr(torch.arange(50.0)).isnan().all()
 
 
-def test_batch_along_any_dim() -> None:
+def test_batch_along_any_dim(backend: str) -> None:
     rng = np.random.default_rng(1)
     frame = pd.DataFrame(rng.standard_normal((30, 4)))
     frame.iloc[3, 1] = math.nan
@@ -186,25 +190,25 @@ def test_batch_along_any_dim() -> None:
 
 @pytest.mark.parametrize("dtype", [torch.float16, torch.bfloat16, torch.float32, torch.float64])
 @pytest.mark.parametrize("method", ["mean", "var", "std"])
-def test_keeps_float_dtype(dtype: torch.dtype, method: str) -> None:
+def test_keeps_float_dtype(backend: str, dtype: torch.dtype, method: str) -> None:
     out = getattr(torchrolling.ewm(torch.arange(10, dtype=dtype), alpha=0.5), method)()
     assert out.dtype == dtype
     assert out.shape == (10,)
 
 
-def test_pairwise_dtype_promotes() -> None:
+def test_pairwise_dtype_promotes(backend: str) -> None:
     x = torch.arange(6, dtype=torch.float32)
     out = torchrolling.ewm(x, alpha=0.5).cov(x.double() ** 2)
     assert out.dtype == torch.float64
 
 
-def test_integers_become_default_float() -> None:
+def test_integers_become_default_float(backend: str) -> None:
     out = torchrolling.ewm(torch.arange(6), alpha=1.0).mean()
     assert out.dtype == torch.get_default_dtype()
     torch.testing.assert_close(out, torch.arange(6.0))
 
 
-def test_float32_accumulation_is_close() -> None:
+def test_float32_accumulation_is_close(backend: str) -> None:
     x = torch.randn(4, 500, dtype=torch.float64)
     want = torchrolling.ewm(x, span=20).std()
     got = torchrolling.ewm(x.float(), span=20, acc_dtype=torch.float32).std()
@@ -212,7 +216,7 @@ def test_float32_accumulation_is_close() -> None:
 
 
 @pytest.mark.parametrize("method", ["mean", "var", "std", "cov", "corr"])
-def test_empty_series(method: str) -> None:
+def test_empty_series(backend: str, method: str) -> None:
     x = torch.empty(3, 0)
     e = torchrolling.ewm(x, alpha=0.5)
     out = getattr(e, method)(x) if method in ("cov", "corr") else getattr(e, method)()
@@ -236,7 +240,7 @@ def test_gradients(method: str, adjust: bool) -> None:
     assert torch.autograd.gradcheck(f, (x,))
 
 
-def test_bias_correction_near_alpha_one() -> None:
+def test_bias_correction_near_alpha_one(backend: str) -> None:
     # Two observations two steps apart: the exact unbiased covariance here is 1/2.
     x = torch.tensor([0.0, 0.0, 1.0], dtype=torch.float64)
     y = torch.tensor([0.0, math.nan, 1.0], dtype=torch.float64)
@@ -299,7 +303,7 @@ def test_bad_other() -> None:
 
 
 @pytest.mark.parametrize("method", ["mean", "var", "std"])
-def test_torch_compile(method: str) -> None:
+def test_torch_compile(backend: str, method: str) -> None:
     torch.compiler.reset()  # each method is a new graph for the same function
     torch.manual_seed(5)
     x = torch.randn(3, 200)

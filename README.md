@@ -38,9 +38,9 @@ exponential moving average at all.
 
 torchrolling computes rolling sums, means, counts, variances, skew, kurtosis, covariances,
 correlations, minima and maxima in O(1) work per element and O(n) memory for any window
-size; medians and quantiles with a Triton kernel on the GPU; and exponentially weighted
-means, variances and correlations with a parallel scan. It works on any device, supports
-autograd and `torch.compile`, and gives the same numbers as pandas.
+size; medians and quantiles; and exponentially weighted means, variances and correlations
+with a parallel scan. On CUDA every statistic is a single fused Triton kernel. It works on
+any device, supports autograd and `torch.compile`, and gives the same numbers as pandas.
 
 ## Install
 
@@ -48,7 +48,8 @@ autograd and `torch.compile`, and gives the same numbers as pandas.
 pip install torchrolling
 ```
 
-Python 3.10+, torch 2.0+ (2.4+ for `torch.compile` of the Triton quantile kernel).
+Python 3.10+, torch 2.0+. The CUDA kernels need Triton 3.2+, which comes with torch 2.6+;
+with an older torch, the same statistics run as plain torch operations.
 
 ## Usage
 
@@ -109,13 +110,21 @@ against pandas' algorithm run in exact arithmetic instead:
   weights (the pandas 2 result) for every method;
 - `corr` is NaN, not ±inf, where one series is constant in the window.
 
-### Precision and speed: `acc_dtype`
+### Precision: `acc_dtype`
 
-Sums and moments are accumulated in float64 by default (float32 on Apple MPS, which has no
-float64), so results match pandas to 1e-9 or better, whatever the input dtype. Minima, maxima
-and quantiles are exact in the input dtype and never use the accumulator. Consumer GPUs run
-float64 much slower than float32; when float32 accuracy (~1e-6 relative) is enough, pass
-`acc_dtype=torch.float32`.
+Sums and moments are accumulated in the input's precision, but at least float32: float64
+input is accumulated in float64 and matches pandas to 1e-9 or better; float32, float16 and
+bfloat16 input is accumulated in float32, which is accurate to about 1e-6 relative. Minima,
+maxima and quantiles are exact in the input dtype. To accumulate float32 data in float64,
+pass `acc_dtype=torch.float64`. On consumer and inference GPUs (T4, RTX), float64 is much
+slower than float32.
+
+### Gradients
+
+Every statistic supports autograd. On CUDA, the fused Triton kernels compute the forward
+pass when no gradient is needed (inference, feature pipelines, `torch.no_grad()`); when one
+is, torchrolling runs the same algorithms as plain torch operations instead, which autograd
+differentiates. Both give the same results.
 
 ## How it works
 
@@ -133,17 +142,25 @@ a tail contains its block's last one. The shifted sums are as well conditioned a
 itself, a constant window gives exact zeros (so its variance is exactly 0, as in pandas), and
 the two sides are merged with the pairwise formulas of Chan, Golub and LeVeque and of Pébay.
 
-Quantiles cannot be split into halves. On CUDA a Triton kernel loads a tile of windows,
-sorts each one in registers and reads the answer from the sorted row (windows up to 1024).
-Elsewhere, for larger windows, or when gradients are needed, torchrolling falls back to
-`torch.nanquantile` over chunks of windows, so memory stays bounded.
+Quantiles cannot be split into halves; the torch code sorts every window, in chunks so that
+memory stays bounded.
+
+On CUDA, each of these is a single fused Triton kernel. For rolling statistics, a program
+loads a run of whole blocks twice, once as is and once shifted by one block and one element,
+so that the tail and the head of every window sit at the same position of two register
+tiles; both scans and the merge happen in registers, in one pass over memory. For quantiles
+with windows above 64, a program sorts the segment its outputs need once, with each value's
+position packed into the sort key, then walks the sorted segment once, counting for every
+window how many of its own values it has passed: O(window) work per output instead of
+O(window log² window). Smaller windows sort each window directly.
 
 Exponentially weighted statistics follow pandas' update rule
 `mean_t = (1 - s_t) * mean_{t-1} + s_t * x_t`. The weights `s_t` depend only on where values
 are missing, so they are computed up front, and the mean, the weighted covariance and the
 bias correction become affine recurrences `y_t = a_t * y_{t-1} + b_t`. These are composed in
 parallel in blocks of 64 steps (Hillis-Steele), which is stable because every `a_t` lies in
-[0, 1].
+[0, 1]. On CUDA, one program per series scans it chunk by chunk and carries the state across
+chunks.
 
 ## Benchmarks
 

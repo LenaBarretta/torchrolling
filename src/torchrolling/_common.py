@@ -1,9 +1,14 @@
-"""Argument checks and dtype rules shared by :func:`rolling` and :func:`ewm`."""
+"""Argument checks, dtype rules and the choice of backend, shared by rolling() and ewm()."""
 
 from __future__ import annotations
 
 import torch
 from torch import Tensor
+
+try:
+    from torchrolling import _triton
+except ImportError:  # pragma: no cover - Triton is only installed on Linux
+    _triton = None  # type: ignore[assignment]
 
 
 def check_int(name: str, value: object, low: int) -> int:
@@ -33,10 +38,32 @@ def as_other(other: object, shape: torch.Size) -> Tensor:
     return other
 
 
-def accumulator(device: torch.device, acc_dtype: torch.dtype | None) -> torch.dtype:
-    """dtype for sums and moments: float64 by default (MPS has none, so float32 there)."""
+def accumulator(dtype: torch.dtype, acc_dtype: torch.dtype | None) -> torch.dtype:
+    """dtype for sums and moments: the input's, but at least float32."""
     if acc_dtype is None:
-        return torch.float32 if device.type == "mps" else torch.float64
+        return torch.float64 if dtype == torch.float64 else torch.float32
     if not isinstance(acc_dtype, torch.dtype) or not acc_dtype.is_floating_point:
         raise TypeError(f"acc_dtype must be a floating torch.dtype, got {acc_dtype!r}")
     return acc_dtype
+
+
+def use_triton(*tensors: Tensor, window: int = 0, limit: str = "") -> bool:
+    """Whether the Triton kernels can compute this: CUDA (or the interpreter, in tests), no
+    gradients needed, and ``window`` within the kernel's limit (``_triton.<limit>``)."""
+    x = tensors[0]
+    return (
+        _triton is not None
+        and x.numel() > 0
+        and (not limit or window <= getattr(_triton, limit))
+        and (x.is_cuda or _triton.INTERPRET)
+        and not (torch.is_grad_enabled() and any(t.requires_grad for t in tensors))
+    )
+
+
+def kernel_dtype(x: Tensor) -> Tensor:
+    """The kernels read float32 or float64."""
+    return x if x.dtype in (torch.float32, torch.float64) else x.float()
+
+
+def dtype_name(dtype: torch.dtype) -> str:
+    return "float64" if dtype == torch.float64 else "float32"  # pragma: no cover - needs Triton

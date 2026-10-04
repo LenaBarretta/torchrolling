@@ -19,7 +19,20 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor
 
-from torchrolling._common import accumulator, as_float, as_other, check_int
+from torchrolling import _common
+from torchrolling._common import (
+    accumulator,
+    as_float,
+    as_other,
+    check_int,
+    dtype_name,
+    kernel_dtype,
+)
+
+try:
+    from torchrolling import _triton
+except ImportError:  # pragma: no cover - Triton is only installed on Linux
+    _triton = None  # type: ignore[assignment]
 
 # Steps composed directly (in log2 rounds) before moving one level up.
 _SCAN_BLOCK = 64
@@ -140,11 +153,13 @@ class Ewm:
         self._dtype = x.dtype
         self._dim = dim
         self._shape = x.shape
-        self._acc = accumulator(x.device, acc_dtype)
+        self._acc = accumulator(x.dtype, acc_dtype)
         self._orig = x.movedim(dim, -1)
 
     def mean(self) -> Tensor:
         """Exponentially weighted mean."""
+        if (out := self._kernel("mean")) is not None:  # pragma: no cover - needs Triton
+            return out
         x, obs = self._prepare(self._orig)
         if x.numel() == 0:
             return self._finish(x, obs)
@@ -155,15 +170,22 @@ class Ewm:
 
     def var(self, bias: bool = False) -> Tensor:
         """Exponentially weighted variance (bias-corrected unless ``bias=True``, like pandas)."""
+        if (out := self._kernel("var", bias=bias)) is not None:  # pragma: no cover - needs Triton
+            return out
         return self._cov(None, bias=bias)
 
     def std(self, bias: bool = False) -> Tensor:
         """Exponentially weighted standard deviation."""
+        if (out := self._kernel("var", bias=bias, sqrt=True)) is not None:  # pragma: no cover
+            return out
         return self.var(bias).sqrt()
 
     def cov(self, other: Tensor, bias: bool = False) -> Tensor:
         """Exponentially weighted covariance with ``other`` (same shape as ``x``)."""
-        return self._cov(as_other(other, self._shape).movedim(self._dim, -1), bias=bias)
+        y = as_other(other, self._shape).movedim(self._dim, -1)
+        if (out := self._kernel("cov", y, bias=bias)) is not None:  # pragma: no cover
+            return out
+        return self._cov(y, bias=bias)
 
     def corr(self, other: Tensor) -> Tensor:
         """Exponentially weighted correlation with ``other`` (same shape as ``x``).
@@ -171,6 +193,8 @@ class Ewm:
         NaN while either series has been constant so far.
         """
         y = as_other(other, self._shape).movedim(self._dim, -1)
+        if (out := self._kernel("corr", y)) is not None:  # pragma: no cover - needs Triton
+            return out
         dtype = torch.promote_types(self._dtype, y.dtype)
         x, obs = self._prepare(self._orig, y)
         if x.numel() == 0:
@@ -182,6 +206,30 @@ class Ewm:
         spread = denom > 0
         corr = (cxy / torch.where(spread, denom, 1.0).sqrt()).clamp(-1, 1)
         return self._finish(corr, (nobs >= self._min_periods) & spread, dtype)
+
+    def _kernel(
+        self, mode: str, other: Tensor | None = None, bias: bool = False, sqrt: bool = False
+    ) -> Tensor | None:
+        """``mode`` from the Triton kernel, or None where that does not apply."""
+        tensors = [self._orig] if other is None else [self._orig, other]
+        if self._acc not in (torch.float32, torch.float64) or not _common.use_triton(*tensors):
+            return None
+        out = _triton.ewm(  # pragma: no cover - needs Triton
+            kernel_dtype(self._orig),
+            None if other is None else kernel_dtype(other),
+            self._alpha,
+            self._min_periods,
+            mode,
+            bias,
+            sqrt,
+            self._adjust,
+            self._ignore_na,
+            dtype_name(self._acc),
+        )
+        dtype = (
+            self._dtype if other is None else torch.promote_types(self._dtype, other.dtype)
+        )  # pragma: no cover
+        return out.to(dtype).movedim(-1, self._dim)  # pragma: no cover - needs Triton
 
     def _cov(self, y: Tensor | None, bias: bool) -> Tensor:
         """Covariance of ``x`` with ``y``, or variance of ``x`` when ``y`` is None."""

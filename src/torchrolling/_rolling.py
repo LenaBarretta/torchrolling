@@ -14,9 +14,11 @@ tail always contains its block's last one. Power sums of the shifted values are 
 conditioned as the window itself, a constant window gives exact zeros, and the two sides are
 merged with the pairwise formulas of Chan et al. and Pébay.
 
-Quantiles cannot be split that way. On CUDA they run in a Triton kernel that sorts each
-window in registers (see ``_triton.py``); elsewhere, and when gradients are needed, they use
-``torch.nanquantile`` over chunks of windows so memory stays bounded.
+Quantiles cannot be split that way: they sort every window, over chunks of windows so memory
+stays bounded.
+
+On CUDA, when no gradients are needed, all of this runs as fused Triton kernels instead
+(see ``_triton.py``), with the same algorithms and the same results.
 """
 
 from __future__ import annotations
@@ -28,7 +30,15 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor
 
-from torchrolling._common import accumulator, as_float, as_other, check_int
+from torchrolling import _common
+from torchrolling._common import (
+    accumulator,
+    as_float,
+    as_other,
+    check_int,
+    dtype_name,
+    kernel_dtype,
+)
 
 try:
     from torchrolling import _triton
@@ -40,20 +50,10 @@ Combine = Callable[[Tensor, Tensor], Tensor]
 
 
 INTERPOLATIONS = ("linear", "lower", "higher", "midpoint", "nearest")
-# Upper bound on elements handed to one torch.nanquantile call (it copies and sorts them).
+# Upper bound on window elements sorted at once by the torch quantile code.
 _CHUNK = 1 << 22
 # pandas gives NaN skew and kurtosis when the (biased) variance is at most this.
 _TINY_VARIANCE = 1e-14
-
-
-def _use_triton(x: Tensor, window: int) -> bool:
-    return (
-        _triton is not None
-        and x.numel() > 0
-        and window <= _triton.MAX_WINDOW
-        and (x.is_cuda or _triton.INTERPRET)
-        and not (x.requires_grad and torch.is_grad_enabled())
-    )
 
 
 def _cumsum(t: Tensor) -> Tensor:
@@ -66,6 +66,27 @@ def _cummax(t: Tensor) -> Tensor:
 
 def _cummin(t: Tensor) -> Tensor:
     return t.cummin(-1).values
+
+
+def _select(windows: Tensor, counts: Tensor, q: float, interpolation: str) -> Tensor:
+    """The ``q``-quantile of each window (NaN for missing), with pandas' interpolation."""
+    s = windows.sort(-1).values  # NaN sorts last
+    exact = torch.float32 if s.device.type == "mps" else torch.float64  # MPS has no float64
+    rank = q * (counts.to(exact) - 1)  # pandas computes the rank in float64 too
+    lo, hi = rank.floor(), rank.ceil()
+    a = s.gather(-1, lo.clamp(min=0).long().unsqueeze(-1)).squeeze(-1)
+    b = s.gather(-1, hi.clamp(min=0).long().unsqueeze(-1)).squeeze(-1)
+    frac = (rank - lo).to(s.dtype)
+    if interpolation == "linear":
+        return a + (b - a) * frac
+    if interpolation == "lower":
+        return a
+    if interpolation == "higher":
+        return b
+    if interpolation == "midpoint":
+        return (a + b) / 2
+    # nearest, ties to even like pandas
+    return torch.where((frac > 0.5) | ((frac == 0.5) & (lo % 2 == 1)), b, a)
 
 
 def _central(n: Tensor, shift: Tensor, sums: Sequence[Tensor]) -> list[Tensor]:
@@ -150,11 +171,11 @@ class Rolling:
         self._shape = x.shape
         # Windows end at their own index; with center=True they end (window - 1) // 2 later.
         self._shift = (window - 1) // 2 if center else 0
-        acc = accumulator(x.device, acc_dtype)
+        self._acc = accumulator(x.dtype, acc_dtype)
         x = x.movedim(dim, -1)
         self._orig = x
         self._valid = torch.isfinite(x)
-        self._x = torch.where(self._valid, x.to(acc), 0.0)
+        self._x = torch.where(self._valid, x.to(self._acc), 0.0)
         self._n: Tensor | None = None
         self._moments_cache: tuple[int, list[Tensor]] = (0, [])
 
@@ -164,6 +185,8 @@ class Rolling:
         Like pandas' ``count``, this counts +-inf, and gives NaN only where the window has
         fewer than ``min_periods`` positions inside the series (at its ends).
         """
+        if (out := self._kernel("count")) is not None:  # pragma: no cover - needs Triton
+            return out
         notnan = (~torch.isnan(self._orig)).to(self._x.dtype)
         total = self._reduce(notnan, 0.0, _cumsum, torch.add)
         end = torch.arange(total.shape[-1], device=total.device) + self._shift
@@ -172,11 +195,15 @@ class Rolling:
 
     def sum(self) -> Tensor:
         """Sum of valid values in each window."""
+        if (out := self._kernel("sum")) is not None:  # pragma: no cover - needs Triton
+            return out
         total = self._reduce(self._x, 0.0, _cumsum, torch.add)
         return self._finish(total, self._count() >= self._min_periods)
 
     def mean(self) -> Tensor:
         """Mean of valid values in each window."""
+        if (out := self._kernel("mean")) is not None:  # pragma: no cover - needs Triton
+            return out
         n = self._count()
         total = self._reduce(self._x, 0.0, _cumsum, torch.add)
         return self._finish(total / n.clamp(min=1), self._enough(n))
@@ -184,11 +211,16 @@ class Rolling:
     def var(self, ddof: int = 1) -> Tensor:
         """Variance of valid values in each window (``ddof=1`` by default, like pandas)."""
         ddof = check_int("ddof", ddof, 0)
+        if (out := self._kernel("var", ddof=ddof)) is not None:  # pragma: no cover - needs Triton
+            return out
         n, m2 = self._moments(2)[:2]
         return self._finish(m2 / (n - ddof).clamp(min=1), self._enough(n) & (n > ddof))
 
     def std(self, ddof: int = 1) -> Tensor:
         """Standard deviation of valid values in each window."""
+        ddof = check_int("ddof", ddof, 0)
+        if (out := self._kernel("std", ddof=ddof)) is not None:  # pragma: no cover - needs Triton
+            return out
         return self.var(ddof).sqrt()
 
     def skew(self) -> Tensor:
@@ -197,6 +229,8 @@ class Rolling:
         NaN for fewer than 3 values or a (biased) variance at most 1e-14; 0 for a window of
         identical values.
         """
+        if (out := self._kernel("skew")) is not None:  # pragma: no cover - needs Triton
+            return out
         n, m2, m3, constant = self._moments(3)
         b = m2 / n.clamp(min=1)
         flat = b <= _TINY_VARIANCE
@@ -212,6 +246,8 @@ class Rolling:
         NaN for fewer than 4 values or a (biased) variance at most 1e-14; -3 for a window of
         identical values.
         """
+        if (out := self._kernel("kurt")) is not None:  # pragma: no cover - needs Triton
+            return out
         n, m2, _, m4, constant = self._moments(4)
         b = m2 / n.clamp(min=1)
         flat = b <= _TINY_VARIANCE
@@ -228,7 +264,10 @@ class Rolling:
         As in pandas, only positions where both series are valid are used.
         """
         ddof = check_int("ddof", ddof, 0)
-        n, c, _, _, dtype = self._comoments(other, squares=False)
+        y = self._other(other)
+        if (out := self._kernel("cov", y, ddof)) is not None:  # pragma: no cover - needs Triton
+            return out
+        n, c, _, _, dtype = self._comoments(y, squares=False)
         return self._finish(c / (n - ddof).clamp(min=1), self._enough(n) & (n > ddof), dtype)
 
     def corr(self, other: Tensor, ddof: int = 1) -> Tensor:
@@ -239,7 +278,10 @@ class Rolling:
         ``ddof`` values NaN, as in pandas.
         """
         ddof = check_int("ddof", ddof, 0)
-        n, c, m2x, m2y, dtype = self._comoments(other, squares=True)
+        y = self._other(other)
+        if (out := self._kernel("corr", y, ddof)) is not None:  # pragma: no cover - needs Triton
+            return out
+        n, c, m2x, m2y, dtype = self._comoments(y, squares=True)
         denom = m2x * m2y
         spread = denom > 0
         corr = (c / torch.where(spread, denom, 1.0).sqrt()).clamp(-1, 1)
@@ -247,12 +289,16 @@ class Rolling:
 
     def min(self) -> Tensor:
         """Minimum of valid values in each window."""
+        if (out := self._kernel("min")) is not None:  # pragma: no cover - needs Triton
+            return out
         values = torch.where(self._valid, self._orig, math.inf)
         lowest = self._reduce(values, math.inf, _cummin, torch.minimum)
         return self._finish(lowest, self._enough(self._count()))
 
     def max(self) -> Tensor:
         """Maximum of valid values in each window."""
+        if (out := self._kernel("max")) is not None:  # pragma: no cover - needs Triton
+            return out
         values = torch.where(self._valid, self._orig, -math.inf)
         highest = self._reduce(values, -math.inf, _cummax, torch.maximum)
         return self._finish(highest, self._enough(self._count()))
@@ -270,10 +316,11 @@ class Rolling:
                 f"interpolation must be one of {INTERPOLATIONS}, got {interpolation!r}"
             )
         # Sorting needs no extra precision, but float16 is too coarse for the interpolation.
-        x = self._orig if self._orig.element_size() >= 4 else self._orig.float()
-        if _use_triton(x, self._window):  # pragma: no cover - tested where Triton exists
+        x = kernel_dtype(self._orig)
+        window = self._window
+        if _common.use_triton(x, window=window, limit="QUANTILE_WINDOW"):  # pragma: no cover
             out = _triton.quantile(
-                x, self._window, self._shift, self._min_periods, float(q), interpolation
+                x, window, self._shift, self._min_periods, float(q), interpolation
             )
             return out.to(self._dtype).movedim(-1, self._dim)
         return self._quantile_torch(x, float(q), interpolation)
@@ -284,6 +331,7 @@ class Rolling:
         if values.numel() == 0:
             return self._finish(values, self._valid)
         flat = values.reshape(-1, length)
+        counts = self._count().reshape(-1, length)
         padded = F.pad(flat, (w - 1, self._shift), value=math.nan)
         windows = padded.unfold(-1, w, 1)[:, self._shift :, :]
         # Chunks of whole rows when they fit, otherwise of time steps within rows.
@@ -293,11 +341,11 @@ class Rolling:
             [
                 torch.cat(
                     [
-                        torch.nanquantile(
+                        _select(
                             windows[r : r + rows, t : t + steps],
+                            counts[r : r + rows, t : t + steps],
                             q,
-                            dim=-1,
-                            interpolation=interpolation,
+                            interpolation,
                         )
                         for t in range(0, length, steps)
                     ],
@@ -307,6 +355,32 @@ class Rolling:
             ]
         )
         return self._finish(out.reshape(values.shape), self._enough(self._count()))
+
+    def _kernel(self, stat: str, other: Tensor | None = None, ddof: int = 0) -> Tensor | None:
+        """``stat`` from the fused Triton kernel, or None where that does not apply."""
+        tensors = [self._orig] if other is None else [self._orig, other]
+        if self._acc not in (torch.float32, torch.float64) or not _common.use_triton(
+            *tensors, window=self._window, limit="MAX_WINDOW"
+        ):
+            return None
+        out = _triton.rolling(  # pragma: no cover - needs Triton
+            kernel_dtype(self._orig),
+            None if other is None else kernel_dtype(other),
+            self._window,
+            self._shift,
+            self._min_periods,
+            ddof,
+            stat,
+            dtype_name(self._acc),
+        )
+        dtype = (
+            self._dtype if other is None else torch.promote_types(self._dtype, other.dtype)
+        )  # pragma: no cover
+        return out.to(dtype).movedim(-1, self._dim)  # pragma: no cover - needs Triton
+
+    def _other(self, other: Tensor) -> Tensor:
+        """The second series of cov/corr, with its time dimension last."""
+        return as_other(other, self._shape).movedim(self._dim, -1)
 
     def _count(self) -> Tensor:
         if self._n is None:
@@ -350,9 +424,8 @@ class Rolling:
         self, other: Tensor, squares: bool
     ) -> tuple[Tensor, Tensor, Tensor, Tensor, torch.dtype]:
         """Count, co-moment C and (if ``squares``) both M2 over the jointly valid values."""
-        y = as_other(other, self._shape)
+        y = other
         dtype = torch.promote_types(self._dtype, y.dtype)
-        y = y.movedim(self._dim, -1)
         valid = self._valid & torch.isfinite(y)
         vf = valid.to(self._x.dtype)
         vb, tx, tx_shift, hx, hx_shift = self._anchored(torch.where(valid, self._x, 0.0), vf)

@@ -16,7 +16,7 @@ def test_version() -> None:
     assert torchrolling.__version__ == "0.1.0"
 
 
-def test_example() -> None:
+def test_example(backend: str) -> None:
     x = torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0])
     r = torchrolling.rolling(x, 3)
     assert isinstance(r, Rolling)
@@ -30,13 +30,13 @@ def test_example() -> None:
 
 @pytest.mark.parametrize("dtype", [torch.float16, torch.bfloat16, torch.float32, torch.float64])
 @pytest.mark.parametrize("method", METHODS)
-def test_keeps_float_dtype(dtype: torch.dtype, method: str) -> None:
+def test_keeps_float_dtype(backend: str, dtype: torch.dtype, method: str) -> None:
     out = getattr(torchrolling.rolling(torch.arange(10, dtype=dtype), 3), method)()
     assert out.dtype == dtype
     assert out.shape == (10,)
 
 
-def test_integers_become_default_float() -> None:
+def test_integers_become_default_float(backend: str) -> None:
     out = torchrolling.rolling(torch.arange(6), 2).sum()
     assert out.dtype == torch.get_default_dtype()
     torch.testing.assert_close(out[1:], torch.tensor([1.0, 3.0, 5.0, 7.0, 9.0]))
@@ -44,7 +44,7 @@ def test_integers_become_default_float() -> None:
 
 @pytest.mark.parametrize("method", METHODS + PAIRWISE + ["median"])
 @pytest.mark.parametrize("shape", [(3, 0), (0, 5), (0, 0)])
-def test_empty(method: str, shape: tuple[int, int]) -> None:
+def test_empty(backend: str, method: str, shape: tuple[int, int]) -> None:
     x = torch.empty(shape)
     r = torchrolling.rolling(x, 4)
     out = getattr(r, method)(x) if method in PAIRWISE else getattr(r, method)()
@@ -52,13 +52,13 @@ def test_empty(method: str, shape: tuple[int, int]) -> None:
 
 
 @pytest.mark.parametrize("method", PAIRWISE)
-def test_pairwise_dtype_promotes(method: str) -> None:
+def test_pairwise_dtype_promotes(backend: str, method: str) -> None:
     x = torch.arange(6, dtype=torch.float32)
     out = getattr(torchrolling.rolling(x, 3), method)(x.double() ** 2)
     assert out.dtype == torch.float64
 
 
-def test_corr_is_nan_where_a_series_is_constant() -> None:
+def test_corr_is_nan_where_a_series_is_constant(backend: str) -> None:
     x = torch.tensor([1.0, 1.0, 1.0, 2.0, 3.0])
     out = torchrolling.rolling(x, 3).corr(torch.arange(5.0))
     torch.testing.assert_close(
@@ -66,7 +66,7 @@ def test_corr_is_nan_where_a_series_is_constant() -> None:
     )
 
 
-def test_constant_windows() -> None:
+def test_constant_windows(backend: str) -> None:
     x = torch.tensor([2.5] * 6 + [1.0], dtype=torch.float64)
     r = torchrolling.rolling(x, 4)
     assert (r.var()[3:6] == 0).all()
@@ -86,7 +86,7 @@ def test_statistics_share_one_cache() -> None:
 
 
 @pytest.mark.parametrize("method", METHODS + PAIRWISE)
-def test_float32_accumulation_is_close(method: str) -> None:
+def test_float32_accumulation_is_close(backend: str, method: str) -> None:
     torch.manual_seed(3)
     x, y = torch.randn(4, 300, dtype=torch.float64), torch.randn(4, 300, dtype=torch.float64)
 
@@ -95,8 +95,10 @@ def test_float32_accumulation_is_close(method: str) -> None:
         out: torch.Tensor = getattr(r, method)(u) if method in PAIRWISE else getattr(r, method)()
         return out
 
-    got = run(x.float(), y.float(), torch.float32)
-    torch.testing.assert_close(got.double(), run(x, y, None), rtol=1e-4, atol=1e-5, equal_nan=True)
+    got = run(x.float(), y.float(), torch.float32).double()
+    # Fourth powers in float32: kurtosis near 0 is only good to ~1e-5 absolute.
+    atol = 1e-4 if method in ("skew", "kurt") else 1e-5
+    torch.testing.assert_close(got, run(x, y, None), rtol=1e-4, atol=atol, equal_nan=True)
 
 
 def test_bad_acc_dtype() -> None:
@@ -114,7 +116,7 @@ def test_bad_other(method: str) -> None:
 
 
 @pytest.mark.parametrize("method", [*METHODS, "median"])
-def test_torch_compile(method: str) -> None:
+def test_torch_compile(backend: str, method: str) -> None:
     torch.compiler.reset()  # each method is a new graph for the same function
     torch.manual_seed(4)
     x = torch.randn(3, 40)
@@ -128,7 +130,7 @@ def test_torch_compile(method: str) -> None:
     torch.testing.assert_close(compiled(x), f(x), equal_nan=True)
 
 
-def test_window_of_one_is_identity_with_nan_for_missing() -> None:
+def test_window_of_one_is_identity_with_nan_for_missing(backend: str) -> None:
     x = torch.tensor([1.0, math.nan, math.inf, 4.0])
     torch.testing.assert_close(
         torchrolling.rolling(x, 1).max(),
@@ -137,7 +139,7 @@ def test_window_of_one_is_identity_with_nan_for_missing() -> None:
     )
 
 
-def test_sum_of_empty_window_is_zero_when_min_periods_is_zero() -> None:
+def test_sum_of_empty_window_is_zero_when_min_periods_is_zero(backend: str) -> None:
     x = torch.tensor([math.nan, math.nan, 1.0])
     torch.testing.assert_close(
         torchrolling.rolling(x, 2, min_periods=0).sum(), torch.tensor([0.0, 0.0, 1.0])

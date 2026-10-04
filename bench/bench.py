@@ -6,8 +6,9 @@
 Writes ``bench/results/<device>.json`` and ``bench/results/<device>.md``. Data is created
 where each library wants it (GPU tensors for torch on CUDA, a DataFrame for pandas) and
 only the rolling computation itself is timed: torchrolling is meant for series that already
-live on the GPU. Libraries that are not installed are skipped. On CUDA, torchrolling runs
-twice: with its default float64 accumulator and with ``acc_dtype=torch.float32``.
+live on the GPU. Libraries that are not installed are skipped. Data is float32. On CUDA,
+torchrolling runs twice: with its default float32 accumulator and with
+``acc_dtype=torch.float64``, which shows what the extra precision costs on that GPU.
 """
 
 from __future__ import annotations
@@ -83,7 +84,7 @@ def torch_impls(data: np.ndarray, other: np.ndarray, device: str) -> dict[str, M
 
     impls = {f"torchrolling ({device})": ours(None)}
     if device == "cuda":
-        impls[f"torchrolling f32 ({device})"] = ours(torch.float32)
+        impls[f"torchrolling fp64 acc ({device})"] = ours(torch.float64)
     impls[f"torch unfold ({device})"] = unfold
     return impls
 
