@@ -223,8 +223,13 @@ tensor `window` times the size of the input. On small windows without missing va
 the fastest way to get mean, std or max; everywhere else torchrolling is. "—" means the
 library has no such statistic.
 
-On the CPU, use pandas or polars: they are faster there. torchrolling is for data that is
-already on the GPU.
+**Reading these numbers honestly.** Part of the gap to pandas and polars is simply a GPU
+against a modest CPU: Kaggle gives them 2–4 cores, and on a large many-core server polars
+would close much of it. That is the situation torchrolling is for (data already on the GPU),
+but on the CPU, use pandas or polars: they are faster there. cuDF is measured at its weakest
+shape, thousands of short columns, which it processes one by one; on a few long series it
+would be much closer. Transfers between CPU and GPU are not timed, and neither is the first
+call of each statistic, which compiles its Triton kernel (a few seconds, then cached on disk).
 
 The kernels' launch configurations were tuned on a T4. Results are the same on every GPU;
 only speed can differ. On a GPU or system where a kernel cannot run, torchrolling warns once
