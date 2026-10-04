@@ -58,16 +58,39 @@ EWM_MODES = {"mean": 0, "var": 1, "cov": 2, "corr": 3}
 MAX_WINDOW = 4096
 QUANTILE_WINDOW = 4096
 
-# Launch configurations; bench/tune.py measures them. Rolling statistics come in groups by
-# how many tensors they keep alive: {group: {BLOCK_W: (tile elements, num_warps)}}.
+# Launch configurations, measured on a T4 with bench/tune.py. Rolling statistics come in
+# groups by how many tensors they keep alive.
 GROUPS = {0: "light", 1: "light", 2: "light", 7: "light", 8: "light"}
 GROUPS |= {3: "moments", 4: "moments", 9: "moments", 5: "heavy", 6: "heavy", 10: "heavy"}
-ROLLING_CONFIGS: dict[str, dict[int, tuple[int, int]]] = {"light": {}, "moments": {}, "heavy": {}}
-ROLLING_DEFAULT = {"light": (2048, 4), "moments": (1024, 4), "heavy": (1024, 4)}
+# Windows up to DIRECT_WINDOW[group] read every window straight from cache (_rolling_direct_
+# kernel); larger ones use the van Herk split (_rolling_kernel).
+DIRECT_WINDOW = {"light": 32, "moments": 32, "heavy": 32}
+# {group: {BLOCK_W: (tile elements, num_warps)}}; sizes in between use the closest one below.
+DIRECT_CONFIGS: dict[str, dict[int, tuple[int, int]]] = {"light": {}, "moments": {}, "heavy": {}}
+DIRECT_DEFAULT = {"light": (2048, 4), "moments": (2048, 4), "heavy": (1024, 4)}
+ROLLING_CONFIGS: dict[str, dict[int, tuple[int, int]]] = {
+    "light": {
+        16: (512, 2), 32: (512, 4), 64: (512, 2), 128: (512, 4), 256: (1024, 4),
+        512: (1024, 2), 1024: (1024, 2), 2048: (2048, 4), 4096: (4096, 4),
+    },
+    "moments": {
+        16: (512, 4), 32: (512, 8), 64: (512, 4), 128: (512, 4), 256: (512, 2),
+        512: (512, 2), 1024: (1024, 4), 2048: (2048, 4), 4096: (4096, 8),
+    },
+    "heavy": {
+        16: (512, 4), 32: (512, 4), 64: (512, 2), 128: (512, 4), 256: (512, 4),
+        512: (512, 2), 1024: (1024, 4), 2048: (2048, 4), 4096: (4096, 8),
+    },
+}  # fmt: skip
+ROLLING_DEFAULT = {"light": (1024, 4), "moments": (1024, 4), "heavy": (1024, 4)}
 # Quantiles, by next_power_of_2(window): ("sort", 0, num_warps) sorts every window,
 # ("select", BLOCK_T, num_warps) uses the select kernel.
-QUANTILE_CONFIGS: dict[int, tuple[str, int, int]] = {}
-SORT_WINDOW = 64  # without an entry above: sort up to here, select beyond
+QUANTILE_CONFIGS: dict[int, tuple[str, int, int]] = {
+    4: ("sort", 0, 2), 8: ("sort", 0, 2), 16: ("sort", 0, 2), 32: ("select", 32, 2),
+    64: ("select", 64, 2), 128: ("select", 256, 4), 256: ("select", 256, 4),
+    1024: ("select", 512, 2),
+}  # fmt: skip
+SORT_WINDOW = 16  # without an entry: sort up to here, select beyond
 # EWM: (time steps per chunk, num_warps).
 EWM_CONFIG = (1024, 4)
 
@@ -289,6 +312,110 @@ def _rolling_kernel(
                     res = (n * n - 1) * d / (bvar * bvar) - 3 * (n - 1) * (n - 1)
                     res = res / tl.maximum((n - 2) * (n - 3), 1.0)
                     res = tl.where(constant, -3.0, tl.where(flat, float("nan"), res))
+                    ok = enough & (n >= 4)
+    tl.store(out_ptr + base + t, tl.where(ok, res, float("nan")), mask=store)
+
+
+@triton.jit
+def _rolling_direct_kernel(
+    x_ptr,
+    y_ptr,
+    out_ptr,
+    length,
+    window,
+    shift,
+    min_periods,
+    ddof,
+    tiles_per_row,
+    STAT: tl.constexpr,
+    PAIR: tl.constexpr,
+    ACC: tl.constexpr,
+    BLOCK_T: tl.constexpr,
+    BLOCK_W: tl.constexpr,
+):
+    """Small windows: every output reads its whole window (from cache) and reduces it. Moments
+    are two-pass (mean first, then deviations), and a window whose valid values are all equal
+    gets exactly zero spread, as in the van Herk kernel and pandas."""
+    pid = tl.program_id(0)
+    base = (pid // tiles_per_row).to(tl.int64) * length
+    t = (pid % tiles_per_row) * BLOCK_T + tl.arange(0, BLOCK_T)
+    j = tl.arange(0, BLOCK_W)[None, :]
+    pos = (t + shift - window + 1)[:, None] + j
+    inside = (j < window) & (pos >= 0) & (pos < length) & (t[:, None] < length)
+    x = tl.load(x_ptr + base + pos, mask=inside, other=0.0)
+    store = t < length
+
+    if STAT == COUNT:
+        n = tl.sum((inside & (x == x)).to(tl.int32), axis=1)
+        end = t + shift
+        positions = tl.minimum(end, length - 1) - tl.maximum(end - window + 1, 0) + 1
+        res = n.to(ACC)
+        ok = positions >= min_periods
+    elif STAT == MIN or STAT == MAX:
+        valid = inside & _finite(x)
+        n = tl.sum(valid.to(tl.int32), axis=1)
+        if STAT == MIN:
+            res = tl.min(tl.where(valid, x, float("inf")), axis=1)
+        else:
+            res = tl.max(tl.where(valid, x, -float("inf")), axis=1)
+        ok = (n >= min_periods) & (n > 0)
+    else:
+        valid = inside & _finite(x)
+        if PAIR:
+            y = tl.load(y_ptr + base + pos, mask=inside, other=0.0)
+            valid = valid & _finite(y)
+            y = tl.where(valid, y.to(ACC), 0.0)
+        x = tl.where(valid, x.to(ACC), 0.0)
+        n = tl.sum(valid.to(ACC), axis=1)
+        sx = tl.sum(x, axis=1)
+        enough = (n >= min_periods) & (n > 0)
+        if STAT == SUM:
+            res = sx
+            ok = n >= min_periods
+        elif STAT == MEAN:
+            res = sx / tl.maximum(n, 1.0)
+            ok = enough
+        else:
+            dx = tl.where(valid, x - (sx / tl.maximum(n, 1.0))[:, None], 0.0)
+            lo = tl.min(tl.where(valid, x, float("inf")), axis=1)
+            hi = tl.max(tl.where(valid, x, -float("inf")), axis=1)
+            flat_x = lo == hi
+            m2 = tl.where(flat_x, 0.0, tl.sum(dx * dx, axis=1))
+            if STAT == COV or STAT == CORR:
+                dy = tl.where(valid, y - (tl.sum(y, axis=1) / tl.maximum(n, 1.0))[:, None], 0.0)
+                c = tl.sum(dx * dy, axis=1)
+                if STAT == COV:
+                    res = c / tl.maximum(n - ddof, 1.0)
+                    ok = enough & (n > ddof)
+                else:
+                    ylo = tl.min(tl.where(valid, y, float("inf")), axis=1)
+                    yhi = tl.max(tl.where(valid, y, -float("inf")), axis=1)
+                    m2y = tl.where(ylo == yhi, 0.0, tl.sum(dy * dy, axis=1))
+                    denom = m2 * m2y
+                    spread = denom > 0
+                    res = c / tl.sqrt(tl.where(spread, denom, 1.0))
+                    res = tl.minimum(tl.maximum(res, -1.0), 1.0)
+                    ok = enough & (n > ddof) & spread
+            elif STAT == VAR or STAT == STD:
+                res = m2 / tl.maximum(n - ddof, 1.0)
+                if STAT == STD:
+                    res = tl.sqrt(res)
+                ok = enough & (n > ddof)
+            else:
+                bvar = m2 / tl.maximum(n, 1.0)
+                tiny = bvar <= TINY_VARIANCE
+                bvar = tl.where(tiny, 1.0, bvar)
+                m3 = tl.sum(dx * dx * dx, axis=1)
+                if STAT == SKEW:
+                    res = tl.sqrt(tl.maximum(n * (n - 1), 0.0)) * (m3 / tl.maximum(n, 1.0))
+                    res = res / (tl.maximum(n - 2, 1.0) * bvar * tl.sqrt(bvar))
+                    res = tl.where(flat_x, 0.0, tl.where(tiny, float("nan"), res))
+                    ok = enough & (n >= 3)
+                else:
+                    d = tl.sum(dx * dx * dx * dx, axis=1) / tl.maximum(n, 1.0)
+                    res = (n * n - 1) * d / (bvar * bvar) - 3 * (n - 1) * (n - 1)
+                    res = res / tl.maximum((n - 2) * (n - 3), 1.0)
+                    res = tl.where(flat_x, -3.0, tl.where(tiny, float("nan"), res))
                     ok = enough & (n >= 4)
     tl.store(out_ptr + base + t, tl.where(ok, res, float("nan")), mask=store)
 
@@ -600,6 +727,29 @@ def _rolling(
     out = torch.empty(flat.shape, dtype=out_dtype, device=x.device)
     block_w = max(16, triton.next_power_of_2(window))
     group = GROUPS[code]
+    if window <= DIRECT_WINDOW[group]:
+        block_w = max(4, triton.next_power_of_2(window))
+        tile, warps = _nearest(DIRECT_CONFIGS[group], block_w) or DIRECT_DEFAULT[group]
+        block_t = max(1, tile // block_w)
+        tiles = triton.cdiv(length, block_t)
+        _rolling_direct_kernel[(flat.shape[0] * tiles,)](
+            flat,
+            other,
+            out,
+            length,
+            window,
+            shift,
+            min_periods,
+            ddof,
+            tiles,
+            STAT=code,
+            PAIR=y is not None,
+            ACC=_TL[acc],
+            BLOCK_T=block_t,
+            BLOCK_W=block_w,
+            num_warps=warps,
+        )
+        return out.reshape(x.shape)
     tile, warps = _nearest(ROLLING_CONFIGS[group], block_w) or ROLLING_DEFAULT[group]
     rows = max(1, tile // block_w)
     tiles = triton.cdiv((length - 1 + shift) // window + 1, rows)

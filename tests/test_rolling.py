@@ -167,13 +167,14 @@ def test_gradients(method: str) -> None:
 
 @pytest.mark.skipif(not torch.cuda.is_available(), reason="needs CUDA")
 @pytest.mark.parametrize("method", METHODS + PAIRWISE)
-def test_cuda_matches_cpu(method: str) -> None:  # pragma: no cover
+@pytest.mark.parametrize("window", [7, 37, 300])  # direct kernel, then van Herk
+def test_cuda_matches_cpu(method: str, window: int) -> None:  # pragma: no cover
     x = torch.randn(64, 1000, dtype=torch.float64)
     x[x > 2] = math.nan
     y = torch.randn(64, 1000, dtype=torch.float64)
 
     def run(t: torch.Tensor, u: torch.Tensor) -> torch.Tensor:
-        r = torchrolling.rolling(t, 37, min_periods=5, center=True)
+        r = torchrolling.rolling(t, window, min_periods=5, center=True)
         out: torch.Tensor = getattr(r, method)(u) if method in PAIRWISE else getattr(r, method)()
         return out
 

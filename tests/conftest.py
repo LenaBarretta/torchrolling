@@ -17,7 +17,7 @@ from torchrolling import _common
 settings.register_profile("default", suppress_health_check=[HealthCheck.function_scoped_fixture])
 settings.load_profile("default")
 
-BACKENDS = ["torch", "triton", "triton-small"]
+BACKENDS = ["torch", "triton", "triton-small", "triton-direct"]
 
 
 def _never(*tensors: torch.Tensor, window: int = 0, limit: str = "") -> bool:
@@ -28,8 +28,10 @@ def _never(*tensors: torch.Tensor, window: int = 0, limit: str = "") -> bool:
 def backend(request: pytest.FixtureRequest) -> Iterator[str]:
     """Run a test on the torch code, or on the Triton kernels (where Triton is installed).
 
-    "triton-small" shrinks the kernels' tiles and chunks so that small inputs still cross
-    tile boundaries, and sends every quantile window to the select kernel.
+    The Triton kernels have two variants per statistic, chosen by window size. Small inputs
+    still cross tile boundaries with tiny tiles: "triton-small" runs the van Herk rolling
+    kernel and the select quantile kernel, "triton-direct" the direct rolling kernel and the
+    sort quantile kernel.
     """
     name: str = request.param
     if name == "torch":
@@ -44,19 +46,23 @@ def backend(request: pytest.FixtureRequest) -> Iterator[str]:
             request.function, "is_hypothesis_test", False
         ):
             # Tile sizes only change speed. In the interpreter, full-size tiles make every
-            # tiny example slow; triton-small runs the same code across more tile edges.
-            pytest.skip("full-size tiles: covered by triton-small and the long-series tests")
+            # tiny example slow; the small-tile backends run the same code across more edges.
+            pytest.skip("full-size tiles: covered by the small-tile backends and long series")
         yield name
         return
     from torchrolling import _triton  # pragma: no cover - needs Triton
 
     tiny = {group: (32, 4) for group in _triton.ROLLING_DEFAULT}  # pragma: no cover
+    small = name == "triton-small"  # pragma: no cover
     with mock.patch.multiple(  # pragma: no cover - needs Triton
         _triton,
         ROLLING_CONFIGS={group: {} for group in tiny},
         ROLLING_DEFAULT=tiny,
+        DIRECT_CONFIGS={group: {} for group in tiny},
+        DIRECT_DEFAULT=tiny,
+        DIRECT_WINDOW={group: 0 if small else 64 for group in tiny},
         QUANTILE_CONFIGS={},
-        SORT_WINDOW=1,
+        SORT_WINDOW=1 if small else 64,
         EWM_CONFIG=(16, 4),
     ):
         yield name
