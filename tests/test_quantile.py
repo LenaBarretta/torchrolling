@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import math
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -31,7 +32,7 @@ def cases(draw: st.DrawFn) -> tuple[list[float], int, int | None, bool]:
     return data, window, min_periods, center
 
 
-def check(got: torch.Tensor, want: pd.Series | np.ndarray) -> None:
+def check(got: torch.Tensor, want: pd.Series | np.ndarray[Any, Any]) -> None:
     want = want.to_numpy() if isinstance(want, pd.Series) else want
     expected = torch.tensor(want, dtype=torch.float64)
     torch.testing.assert_close(got.double(), expected, rtol=1e-9, atol=1e-9, equal_nan=True)
