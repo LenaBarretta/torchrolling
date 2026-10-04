@@ -26,12 +26,18 @@ from torchrolling import _triton as kernels
 RESULTS = Path(__file__).parent / "results"
 # Representative statistics per rolling group: their times are added up.
 GROUPS = {"light": ["mean", "max"], "moments": ["std"], "heavy": ["corr", "kurt"]}
-BLOCK_WS = [16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
-TILES = [512, 1024, 2048, 4096, 8192]
-WARPS = [2, 4, 8]
-QUANTILE_WINDOWS = [4, 8, 16, 32, 64, 128, 256, 1024, 4096]
-SELECT_BLOCKS = [32, 64, 128, 256, 512, 1024]
-EWM_BLOCKS = [256, 512, 1024, 2048]
+# Sizes in between use the closest measured size below (see _nearest in _triton.py).
+BLOCK_WS = [16, 64, 256, 1024, 4096]
+TILES = {"light": [512, 1024, 2048, 4096], "moments": [512, 1024, 2048], "heavy": [512, 1024, 2048]}
+WARPS = [4, 8]
+QUANTILE_WINDOWS = [8, 32, 128, 512, 2048]
+SELECT_BLOCKS = [64, 128, 256, 512]
+EWM_BLOCKS = [512, 1024, 2048]
+START = time.perf_counter()
+
+
+def log(message: str) -> None:
+    print(f"[{time.perf_counter() - START:6.0f}s] {message}", flush=True)
 
 
 def best_time(fn: Callable[[], object], repeats: int = 3) -> float:
@@ -51,7 +57,7 @@ def attempt(fn: Callable[[], object]) -> float:
     try:
         return best_time(fn)
     except Exception as e:  # out of resources, compiler limits, ...
-        print(f"    skipped: {type(e).__name__}: {str(e).splitlines()[0][:80]}", flush=True)
+        log(f"  skipped: {type(e).__name__}: {str(e).splitlines()[0][:80]}")
         return float("inf")
 
 
@@ -67,7 +73,7 @@ def tune_rolling(x: torch.Tensor, y: torch.Tensor) -> dict[str, dict[str, list[i
         for block_w in BLOCK_WS:
             window = window_for(block_w)
             best = (float("inf"), 0, 0)
-            for tile in (t for t in TILES if t >= block_w):
+            for tile in [t for t in TILES[group] if t >= block_w] or [block_w]:
                 for warps in WARPS:
                     kernels.ROLLING_CONFIGS[group][block_w] = (tile, warps)
                     total = 0.0
@@ -78,9 +84,7 @@ def tune_rolling(x: torch.Tensor, y: torch.Tensor) -> dict[str, dict[str, list[i
                     best = min(best, (total, tile, warps))
             kernels.ROLLING_CONFIGS[group][block_w] = best[1:]
             out[group][str(block_w)] = [best[1], best[2]]
-            print(
-                f"rolling {group} BLOCK_W={block_w}: {best[1:]}, {best[0] * 1e3:.2f} ms", flush=True
-            )
+            log(f"rolling {group} BLOCK_W={block_w}: {best[1:]}, {best[0] * 1e3:.2f} ms")
     return out
 
 
@@ -90,7 +94,7 @@ def tune_quantile(x: torch.Tensor) -> dict[str, list[Any]]:
         options: list[tuple[str, int, int]] = []
         if window <= 128:
             options += [("sort", 0, warps) for warps in WARPS]
-        options += [("select", b, w) for b in SELECT_BLOCKS for w in WARPS if b + window <= 8192]
+        options += [("select", b, w) for b in SELECT_BLOCKS for w in WARPS]
         best = (float("inf"), ("sort", 0, 4))
         for option in options:
             kernels.QUANTILE_CONFIGS[window] = option
@@ -98,7 +102,7 @@ def tune_quantile(x: torch.Tensor) -> dict[str, list[Any]]:
             best = min(best, (t, option))
         kernels.QUANTILE_CONFIGS[window] = best[1]
         out[str(window)] = list(best[1])
-        print(f"quantile window={window}: {best[1]}, {best[0] * 1e3:.2f} ms", flush=True)
+        log(f"quantile window={window}: {best[1]}, {best[0] * 1e3:.2f} ms")
     return out
 
 
@@ -111,7 +115,7 @@ def tune_ewm(x: torch.Tensor) -> list[int]:
             t = attempt(e.mean) + attempt(e.std)
             best = min(best, (t, block, warps))
     kernels.EWM_CONFIG = best[1:]
-    print(f"ewm: {best[1:]}, {best[0] * 1e3:.2f} ms", flush=True)
+    log(f"ewm: {best[1:]}, {best[0] * 1e3:.2f} ms")
     return [best[1], best[2]]
 
 
@@ -126,7 +130,7 @@ def apply(path: str | Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("--rows", type=int, default=1000)
+    parser.add_argument("--rows", type=int, default=500)
     parser.add_argument("--length", type=int, default=20_000)
     args = parser.parse_args()
     torch.manual_seed(0)
@@ -141,7 +145,7 @@ def main() -> None:
     }
     RESULTS.mkdir(exist_ok=True)
     (RESULTS / "tuning.json").write_text(json.dumps(found, indent=1))
-    print(f"\nWrote {RESULTS / 'tuning.json'}")
+    log(f"wrote {RESULTS / 'tuning.json'}")
 
 
 if __name__ == "__main__":

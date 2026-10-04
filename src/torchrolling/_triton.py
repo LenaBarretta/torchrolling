@@ -71,6 +71,15 @@ SORT_WINDOW = 64  # without an entry above: sort up to here, select beyond
 # EWM: (time steps per chunk, num_warps).
 EWM_CONFIG = (1024, 4)
 
+
+def _nearest(table: dict[int, tuple], size: int) -> tuple | None:  # type: ignore[type-arg]
+    """The entry for ``size``, or for the closest measured size below it (above if none)."""
+    if not table:
+        return None
+    below = [k for k in table if k <= size]
+    return table[max(below) if below else min(table)]
+
+
 COUNT = tl.constexpr(0)
 SUM = tl.constexpr(1)
 MEAN = tl.constexpr(2)
@@ -591,7 +600,7 @@ def _rolling(
     out = torch.empty(flat.shape, dtype=out_dtype, device=x.device)
     block_w = max(16, triton.next_power_of_2(window))
     group = GROUPS[code]
-    tile, warps = ROLLING_CONFIGS[group].get(block_w, ROLLING_DEFAULT[group])
+    tile, warps = _nearest(ROLLING_CONFIGS[group], block_w) or ROLLING_DEFAULT[group]
     rows = max(1, tile // block_w)
     tiles = triton.cdiv((length - 1 + shift) // window + 1, rows)
     _rolling_kernel[(flat.shape[0] * tiles,)](
@@ -627,7 +636,9 @@ def _quantile(
         default = ("sort", 0, 4)
     else:
         default = ("select", min(512, max(128, triton.next_power_of_2(window))), 4)
-    kind, block_t, warps = QUANTILE_CONFIGS.get(triton.next_power_of_2(window), default)
+    kind, block_t, warps = _nearest(QUANTILE_CONFIGS, triton.next_power_of_2(window)) or default
+    if kind == "sort" and window > 1024:  # the sort kernel holds whole windows in registers
+        kind, block_t = default[0], default[1]
     if kind == "sort":
         block_w = triton.next_power_of_2(window)
         block_t = max(1, min(64, 4096 // block_w))
