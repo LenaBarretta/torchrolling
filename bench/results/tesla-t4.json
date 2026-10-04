@@ -1,0 +1,3752 @@
+{
+ "device": "Tesla T4",
+ "torch": "2.11.0+cu128",
+ "triton": "3.6.0",
+ "torchrolling": "0.1.0",
+ "commit": "baf5355",
+ "tuning": "bench/results/tuning.json",
+ "rows": [
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0006901289998495486,
+   "peak_mb": 25.72314453125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.0025713449999784643,
+   "peak_mb": 37.1669921875
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.0001546839998809446,
+   "peak_mb": 20.9541015625
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.025398041999778798
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "torch unfold (cpu)",
+   "seconds": 0.005997778000164544
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "pandas",
+   "seconds": 0.03141371799983972
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "polars",
+   "seconds": 0.006774154999675375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "cuDF",
+   "seconds": 0.014670266999928572
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0007034949999251694,
+   "peak_mb": 25.72314453125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.005575046000103612,
+   "peak_mb": 37.1669921875
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.0003178830002070754,
+   "peak_mb": 20.9541015625
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.07178333799993197
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "torch unfold (cpu)",
+   "seconds": 0.2192329399999835
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "pandas",
+   "seconds": 0.03233897699965382
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "polars",
+   "seconds": 0.009917615999711415
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "cuDF",
+   "seconds": 0.027669256000081077
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0004927230002067517,
+   "peak_mb": 25.72314453125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.0005313540000315697,
+   "peak_mb": 32.42724609375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.00017793500001062057,
+   "peak_mb": 20.9541015625
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.0324515130000691
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "torch unfold (cpu)",
+   "seconds": 0.019356398999661906
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "pandas",
+   "seconds": 0.046795318000022235
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "polars",
+   "seconds": 0.011264706000019942
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "cuDF",
+   "seconds": 0.013942899000085163
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.001984321999771055,
+   "peak_mb": 25.8798828125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.0020280159997128067,
+   "peak_mb": 32.42724609375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.02344993099995918,
+   "peak_mb": 271.31494140625
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.25154209699985586
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "torch unfold (cpu)",
+   "seconds": 0.4062005460000364
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "pandas",
+   "seconds": 0.40925684100011495
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "polars",
+   "seconds": 0.0447064679997311
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "cuDF",
+   "error": "not supported (Rolling.median() is not yet implemented)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0009860919999482576,
+   "peak_mb": 25.72314453125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.008426374999999098,
+   "peak_mb": 37.1669921875
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.008127741999942373,
+   "peak_mb": 257.017578125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.11922976800042306
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "torch unfold (cpu)",
+   "seconds": 0.2129972299999281
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "pandas",
+   "seconds": 0.14365400199994838
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "polars",
+   "error": "not supported (polars has no column-wise rolling corr)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "cuDF",
+   "error": "not supported (AttributeError)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0003532979999363306,
+   "peak_mb": 20.95458984375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.0017403540000486828,
+   "peak_mb": 28.58349609375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cuda)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.06014665900011096
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cpu)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "pandas",
+   "seconds": 0.013067394000245258
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "polars",
+   "seconds": 0.005543763999867224
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "cuDF",
+   "seconds": 0.0845752469999752
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0005798170000161917,
+   "peak_mb": 25.72314453125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.0026342890000705665,
+   "peak_mb": 37.1669921875
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.0006830719999015855,
+   "peak_mb": 19.953125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.013187220999952842
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "torch unfold (cpu)",
+   "seconds": 0.009214694000093004
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "pandas",
+   "seconds": 0.02326752499993745
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "polars",
+   "seconds": 0.007863830999667698
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "cuDF",
+   "seconds": 0.025324380999791174
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0006446779998441343,
+   "peak_mb": 25.72314453125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.004448219000096287,
+   "peak_mb": 37.1669921875
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.0021576310000455123,
+   "peak_mb": 19.953125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.06281272799969884
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "torch unfold (cpu)",
+   "seconds": 0.8723737410000467
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "pandas",
+   "seconds": 0.030550078000032954
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "polars",
+   "seconds": 0.009955854000054387
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "cuDF",
+   "seconds": 0.06123901000000842
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0004249399999025627,
+   "peak_mb": 25.72314453125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.00046247899990703445,
+   "peak_mb": 32.42724609375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.00046303199997055344,
+   "peak_mb": 19.953125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.01719716600018728
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "torch unfold (cpu)",
+   "seconds": 0.02117642799976238
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "pandas",
+   "seconds": 0.03830932299979395
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "polars",
+   "seconds": 0.01074991499990574
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "cuDF",
+   "seconds": 0.013577542999883008
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.004738192999866442,
+   "peak_mb": 26.9736328125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.004690857000241522,
+   "peak_mb": 32.42724609375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.2175281790000554,
+   "peak_mb": 2454.6318359375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "torchrolling (cpu)",
+   "seconds": 4.3344336289997045
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "torch unfold (cpu)",
+   "seconds": 5.744484650000231
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "pandas",
+   "seconds": 0.6523879930000476
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "polars",
+   "seconds": 0.044526082999709615
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "cuDF",
+   "error": "not supported (Rolling.median() is not yet implemented)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.001118488999964029,
+   "peak_mb": 25.72314453125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.007846058999803063,
+   "peak_mb": 37.1669921875
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.04402024999990317,
+   "peak_mb": 2271.431640625
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.11398681599985139
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "torch unfold (cpu)",
+   "seconds": 1.7961040130003312
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "pandas",
+   "seconds": 0.1447117130001061
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "polars",
+   "error": "not supported (polars has no column-wise rolling corr)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "cuDF",
+   "error": "not supported (AttributeError)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.00040439799977320945,
+   "peak_mb": 20.95458984375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.0015974439997989975,
+   "peak_mb": 28.58349609375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cuda)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.03567767899994578
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cpu)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "pandas",
+   "seconds": 0.011434986000040226
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "polars",
+   "seconds": 0.005668480999702297
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "cuDF",
+   "seconds": 0.0897994430001745
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.000465702999917994,
+   "peak_mb": 25.72314453125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.0019169460001648986,
+   "peak_mb": 37.1669921875
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.004468568999982381,
+   "peak_mb": 19.64794921875
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.013470367000081751
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "torch unfold (cpu)",
+   "seconds": 0.025965661000100226
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "pandas",
+   "seconds": 0.02375451299985798
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "polars",
+   "seconds": 0.007201386999895476
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "cuDF",
+   "seconds": 0.05451062700012699
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0005527990001610306,
+   "peak_mb": 25.72314453125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.00398252400009369,
+   "peak_mb": 37.1669921875
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.012423460999798408,
+   "peak_mb": 19.64794921875
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.06734949099973164
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "torch unfold (cpu)",
+   "seconds": 3.5055153140001494
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "pandas",
+   "seconds": 0.03253302600023744
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "polars",
+   "seconds": 0.009865242000159924
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "cuDF",
+   "seconds": 0.14803137799981414
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.00037485699976969045,
+   "peak_mb": 25.72314453125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.0003810959997281316,
+   "peak_mb": 32.42724609375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.002041813999767328,
+   "peak_mb": 19.64794921875
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.016847346000304242
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "torch unfold (cpu)",
+   "seconds": 0.05364088400028777
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "pandas",
+   "seconds": 0.039242364000074303
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "polars",
+   "seconds": 0.009995504000016808
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "cuDF",
+   "seconds": 0.020090693999918585
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.019510089000050357,
+   "peak_mb": 30.7236328125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.01940926999986914,
+   "peak_mb": 34.5380859375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "torch unfold (cuda)",
+   "error": "out of memory"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "torchrolling (cpu)",
+   "seconds": 27.01040045500031
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "torch unfold (cpu)",
+   "seconds": 31.810620338000263
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "pandas",
+   "seconds": 0.7885243440000522
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "polars",
+   "seconds": 0.043392902000050526
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "cuDF",
+   "error": "not supported (Rolling.median() is not yet implemented)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0009376440002597519,
+   "peak_mb": 25.72314453125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.006262296999921091,
+   "peak_mb": 37.1669921875
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.19317305899994608,
+   "peak_mb": 10328.51611328125
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.12279625399969518
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "torch unfold (cpu)",
+   "seconds": 8.37680383299994
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "pandas",
+   "seconds": 0.13394533800010322
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "polars",
+   "error": "not supported (polars has no column-wise rolling corr)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "cuDF",
+   "error": "not supported (AttributeError)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.00035105400002066744,
+   "peak_mb": 20.95458984375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.0016218079999816837,
+   "peak_mb": 28.58349609375
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cuda)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.035295343000143475
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cpu)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "pandas",
+   "seconds": 0.012430813000264607
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "polars",
+   "seconds": 0.005666999999903055
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "cuDF",
+   "seconds": 0.08390193100012766
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.004230658999858861,
+   "peak_mb": 174.52392578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.024141900000358874,
+   "peak_mb": 288.96484375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.0008554139999432664,
+   "peak_mb": 126.767578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.4104402000002665
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "torch unfold (cpu)",
+   "seconds": 0.07624091400020916
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "pandas",
+   "seconds": 0.24747035900008996
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "polars",
+   "seconds": 0.06844131499974537
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "cuDF",
+   "seconds": 0.1638554739997744
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.005111902999942686,
+   "peak_mb": 174.52392578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.039840946000367694,
+   "peak_mb": 288.96484375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.0012088869998478913,
+   "peak_mb": 126.767578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "torchrolling (cpu)",
+   "seconds": 1.1454731990002074
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "torch unfold (cpu)",
+   "seconds": 2.252396953999778
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "pandas",
+   "seconds": 0.32962677700015774
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "polars",
+   "seconds": 0.09812433799970677
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "cuDF",
+   "seconds": 0.2912800609997248
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0033515110003463633,
+   "peak_mb": 174.52392578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.004101258999980928,
+   "peak_mb": 250.818359375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.0015297499999178399,
+   "peak_mb": 126.767578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.6520661729996391
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "torch unfold (cpu)",
+   "seconds": 0.19829523399994287
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "pandas",
+   "seconds": 0.41530779599997913
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "polars",
+   "seconds": 0.1039018099995701
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "cuDF",
+   "seconds": 0.1544879719999699
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.018119387999831815,
+   "peak_mb": 174.6806640625
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.01606473299989375,
+   "peak_mb": 250.818359375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.14175392900006045,
+   "peak_mb": 2640.1953125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "torchrolling (cpu)",
+   "seconds": 2.789681711999947
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "torch unfold (cpu)",
+   "seconds": 4.553030405999834
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "pandas",
+   "seconds": 4.721307000000252
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "polars",
+   "seconds": 0.47996306599998206
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "cuDF",
+   "error": "not supported (Rolling.median() is not yet implemented)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.008330738000040583,
+   "peak_mb": 174.52392578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.05988537999974142,
+   "peak_mb": 288.96484375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.06381824200025221,
+   "peak_mb": 2488.9169921875
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "torchrolling (cpu)",
+   "seconds": 2.646190862000367
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "torch unfold (cpu)",
+   "seconds": 2.344907850999789
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "pandas",
+   "seconds": 1.593968723999751
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "polars",
+   "error": "not supported (polars has no column-wise rolling corr)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "cuDF",
+   "error": "not supported (AttributeError)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0010510369997973612,
+   "peak_mb": 126.84033203125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.012111232999814092,
+   "peak_mb": 203.1337890625
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cuda)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cpu)",
+   "seconds": 1.6990523120002763
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cpu)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "pandas",
+   "seconds": 0.14707522400021844
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "polars",
+   "seconds": 0.0542694619998656
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "cuDF",
+   "seconds": 0.9478043039998738
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.004024988000310259,
+   "peak_mb": 174.52392578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.024139783999999054,
+   "peak_mb": 288.96484375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.006442910999794549,
+   "peak_mb": 126.69287109375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.43232843499981755
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "torch unfold (cpu)",
+   "error": "skipped, needs 7 GB"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "pandas",
+   "seconds": 0.26199634900012825
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "polars",
+   "seconds": 0.06791390299986233
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "cuDF",
+   "seconds": 0.26516613200010397
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0043577650003499,
+   "peak_mb": 174.52392578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.030342339999606338,
+   "peak_mb": 288.96484375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.014720644999670185,
+   "peak_mb": 126.69287109375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "torchrolling (cpu)",
+   "seconds": 1.2162720809997154
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "torch unfold (cpu)",
+   "error": "skipped, needs 7 GB"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "pandas",
+   "seconds": 0.35642192800014527
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "polars",
+   "seconds": 0.10146561800002019
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "cuDF",
+   "seconds": 0.4858007629995882
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.002044210000349267,
+   "peak_mb": 174.52392578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.0029683020002266858,
+   "peak_mb": 250.818359375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.003228443000352854,
+   "peak_mb": 126.69287109375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.6184956490001241
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "torch unfold (cpu)",
+   "error": "skipped, needs 7 GB"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "pandas",
+   "seconds": 0.4243219019999742
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "polars",
+   "seconds": 0.11009154299972579
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "cuDF",
+   "seconds": 0.17041097200035438
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.043755322999913915,
+   "peak_mb": 176.37744140625
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.023098735000075976,
+   "peak_mb": 250.818359375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "torch unfold (cuda)",
+   "error": "out of memory"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "torchrolling (cpu)",
+   "seconds": 42.61667503200033
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "torch unfold (cpu)",
+   "error": "skipped, needs 7 GB"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "pandas",
+   "seconds": 5.998378089000198
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "polars",
+   "seconds": 0.4251927150003212
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "cuDF",
+   "error": "not supported (Rolling.median() is not yet implemented)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.008414351000283204,
+   "peak_mb": 174.52392578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.03610435500013409,
+   "peak_mb": 288.96484375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "torch unfold (cuda)",
+   "error": "out of memory"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "torchrolling (cpu)",
+   "seconds": 2.446523391000028
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "torch unfold (cpu)",
+   "error": "skipped, needs 7 GB"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "pandas",
+   "seconds": 1.4624938329998258
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "polars",
+   "error": "not supported (polars has no column-wise rolling corr)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "cuDF",
+   "error": "not supported (AttributeError)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.001016209999761486,
+   "peak_mb": 126.84033203125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.012106040000162466,
+   "peak_mb": 203.1337890625
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cuda)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cpu)",
+   "seconds": 1.627256201000364
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cpu)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "pandas",
+   "seconds": 0.13704683400010254
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "polars",
+   "seconds": 0.054228085999966424
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "cuDF",
+   "seconds": 0.9018252179998854
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.003062792000037007,
+   "peak_mb": 174.52392578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.016158326000095258,
+   "peak_mb": 288.96484375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.03837372199996025,
+   "peak_mb": 123.029296875
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.42898224300006405
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "torch unfold (cpu)",
+   "error": "skipped, needs 37 GB"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "pandas",
+   "seconds": 0.2376620259997253
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "polars",
+   "seconds": 0.062199310999858426
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "cuDF",
+   "seconds": 0.3496684390001974
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0022728769999957876,
+   "peak_mb": 174.52392578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.016240756000115653,
+   "peak_mb": 288.96484375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.08001737699987643,
+   "peak_mb": 261.029296875
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "torchrolling (cpu)",
+   "seconds": 1.2149836890002916
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "torch unfold (cpu)",
+   "error": "skipped, needs 37 GB"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "pandas",
+   "seconds": 0.3156825390001359
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "polars",
+   "seconds": 0.08460221699988324
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "cuDF",
+   "seconds": 1.486778338000022
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.0019124279997413396,
+   "peak_mb": 174.52392578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.0028145740002401,
+   "peak_mb": 250.818359375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.030253502000050503,
+   "peak_mb": 123.029296875
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "torchrolling (cpu)",
+   "seconds": 0.6025489009998637
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "torch unfold (cpu)",
+   "error": "skipped, needs 37 GB"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "pandas",
+   "seconds": 0.38576583299982303
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "polars",
+   "seconds": 0.09707360299989887
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "cuDF",
+   "seconds": 0.2067043760002889
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.08113479000030566,
+   "peak_mb": 179.5244140625
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.08348623499978203,
+   "peak_mb": 250.818359375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "torch unfold (cuda)",
+   "error": "out of memory"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "torchrolling (cpu)",
+   "seconds": 270.69190996299994
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "torch unfold (cpu)",
+   "error": "skipped, needs 37 GB"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "pandas",
+   "seconds": 8.293233163999503
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "polars",
+   "seconds": 0.4233438279998154
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "cuDF",
+   "error": "not supported (Rolling.median() is not yet implemented)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.007276901000295766,
+   "peak_mb": 174.52392578125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.03572552199966594,
+   "peak_mb": 288.96484375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "torch unfold (cuda)",
+   "error": "out of memory"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "torchrolling (cpu)",
+   "seconds": 2.5351196829997207
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "torch unfold (cpu)",
+   "error": "skipped, needs 37 GB"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "pandas",
+   "seconds": 1.416218807000405
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "polars",
+   "error": "not supported (polars has no column-wise rolling corr)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "cuDF",
+   "error": "not supported (AttributeError)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.001025451999339566,
+   "peak_mb": 126.84033203125
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.012133530000028259,
+   "peak_mb": 203.1337890625
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cuda)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cpu)",
+   "seconds": 1.6168294160006553
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cpu)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "pandas",
+   "seconds": 0.13685647799957223
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "polars",
+   "seconds": 0.05289749299936375
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "cuDF",
+   "seconds": 0.8755928869995842
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.041524884999489586,
+   "peak_mb": 1636.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.11485858499963797,
+   "peak_mb": 2780.27783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.0056515279993618606,
+   "peak_mb": 1157.14404296875
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "cuDF",
+   "seconds": 2.2301651119996677
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.05042757299997902,
+   "peak_mb": 1636.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.22882746399955067,
+   "peak_mb": 2780.27783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.014246388000174193,
+   "peak_mb": 1157.14404296875
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "cuDF",
+   "seconds": 3.5740552749994094
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.03106083900001977,
+   "peak_mb": 1636.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.03245304499978374,
+   "peak_mb": 2398.2783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.009748391999892192,
+   "peak_mb": 1157.14404296875
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "cuDF",
+   "seconds": 2.0418931899994277
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.10605940499954158,
+   "peak_mb": 1636.5556640625
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.11431580499993288,
+   "peak_mb": 2398.2783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "torch unfold (cuda)",
+   "error": "out of memory"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "cuDF",
+   "error": "not supported (Rolling.median() is not yet implemented)"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.057955285999923944,
+   "peak_mb": 1636.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.33393162399988796,
+   "peak_mb": 2780.27783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "torch unfold (cuda)",
+   "error": "out of memory"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "cuDF",
+   "error": "not supported (AttributeError)"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.005291641999974672,
+   "peak_mb": 1158.3994140625
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.051175652999518206,
+   "peak_mb": 1921.33837890625
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cuda)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "cuDF",
+   "seconds": 10.135652042999936
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.03953960699982417,
+   "peak_mb": 1636.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.11606709399984538,
+   "peak_mb": 2780.27783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.05014404800022021,
+   "peak_mb": 1150.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "cuDF",
+   "seconds": 3.199833151000348
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.04011329800050589,
+   "peak_mb": 1636.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.1883087930000329,
+   "peak_mb": 2780.27783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.13628519699977915,
+   "peak_mb": 2646.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "cuDF",
+   "seconds": 5.565967711999292
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.022083388999817544,
+   "peak_mb": 1636.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.03235884099922259,
+   "peak_mb": 2398.2783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.05692924499999208,
+   "peak_mb": 1150.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "cuDF",
+   "seconds": 2.303184678999969
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.22111999800017657,
+   "peak_mb": 1637.6494140625
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.23070365300009144,
+   "peak_mb": 2398.2783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "torch unfold (cuda)",
+   "error": "out of memory"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "cuDF",
+   "error": "not supported (Rolling.median() is not yet implemented)"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.05014556999958586,
+   "peak_mb": 1636.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.30482922500050336,
+   "peak_mb": 2780.27783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "torch unfold (cuda)",
+   "error": "out of memory"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "cuDF",
+   "error": "not supported (AttributeError)"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.004738888000247243,
+   "peak_mb": 1158.3994140625
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.04759364999972604,
+   "peak_mb": 1921.33837890625
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cuda)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "cuDF",
+   "seconds": 10.116926562000117
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.029852855000171985,
+   "peak_mb": 1636.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.08557637400008389,
+   "peak_mb": 2780.27783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.26174734000051103,
+   "peak_mb": 1120.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "cuDF",
+   "seconds": 4.055012503999933
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.026575107000098797,
+   "peak_mb": 1636.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.16568261799966422,
+   "peak_mb": 2780.27783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.8035142990001987,
+   "peak_mb": 2494.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "cuDF",
+   "seconds": 15.514520355000059
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.019387590999940585,
+   "peak_mb": 1636.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.02940305599986459,
+   "peak_mb": 2398.2783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "torch unfold (cuda)",
+   "seconds": 0.294301730999905,
+   "peak_mb": 1120.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "cuDF",
+   "seconds": 2.5728384960002586
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.8299105699998108,
+   "peak_mb": 1641.3994140625
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.8447637009994651,
+   "peak_mb": 2398.2783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "torch unfold (cuda)",
+   "error": "out of memory"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "cuDF",
+   "error": "not supported (Rolling.median() is not yet implemented)"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.04773130499961553,
+   "peak_mb": 1636.39892578125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.2682204709999496,
+   "peak_mb": 2780.27783203125
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "torch unfold (cuda)",
+   "error": "out of memory"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "cuDF",
+   "error": "not supported (AttributeError)"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "torchrolling (cuda)",
+   "seconds": 0.004535798999313556,
+   "peak_mb": 1158.3994140625
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "torchrolling fp64 acc (cuda)",
+   "seconds": 0.04934772599972348,
+   "peak_mb": 1921.33837890625
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "torch unfold (cuda)",
+   "error": "not supported (torch has no exponential moving average)"
+  },
+  {
+   "shape": [
+    10000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "cuDF",
+   "seconds": 9.647520546000123
+  }
+ ]
+}

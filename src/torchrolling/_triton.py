@@ -64,9 +64,13 @@ GROUPS = {0: "light", 1: "light", 2: "light", 7: "light", 8: "light"}
 GROUPS |= {3: "moments", 4: "moments", 9: "moments", 5: "heavy", 6: "heavy", 10: "heavy"}
 # Windows up to DIRECT_WINDOW[group] read every window straight from cache (_rolling_direct_
 # kernel); larger ones use the van Herk split (_rolling_kernel).
-DIRECT_WINDOW = {"light": 32, "moments": 32, "heavy": 32}
+DIRECT_WINDOW = {"light": 8, "moments": 8, "heavy": 8}
 # {group: {BLOCK_W: (tile elements, num_warps)}}; sizes in between use the closest one below.
-DIRECT_CONFIGS: dict[str, dict[int, tuple[int, int]]] = {"light": {}, "moments": {}, "heavy": {}}
+DIRECT_CONFIGS: dict[str, dict[int, tuple[int, int]]] = {
+    "light": {4: (2048, 2), 8: (1024, 2)},
+    "moments": {4: (1024, 4), 8: (512, 2)},
+    "heavy": {4: (512, 2), 8: (512, 2)},
+}
 DIRECT_DEFAULT = {"light": (2048, 4), "moments": (2048, 4), "heavy": (1024, 4)}
 ROLLING_CONFIGS: dict[str, dict[int, tuple[int, int]]] = {
     "light": {
@@ -88,11 +92,11 @@ ROLLING_DEFAULT = {"light": (1024, 4), "moments": (1024, 4), "heavy": (1024, 4)}
 QUANTILE_CONFIGS: dict[int, tuple[str, int, int]] = {
     4: ("sort", 0, 2), 8: ("sort", 0, 2), 16: ("sort", 0, 2), 32: ("select", 32, 2),
     64: ("select", 64, 2), 128: ("select", 256, 4), 256: ("select", 256, 4),
-    1024: ("select", 512, 2),
+    1024: ("select", 512, 2), 2048: ("select", 512, 2), 4096: ("select", 1024, 4),
 }  # fmt: skip
 SORT_WINDOW = 16  # without an entry: sort up to here, select beyond
 # EWM: (time steps per chunk, num_warps).
-EWM_CONFIG = (1024, 4)
+EWM_CONFIG = (512, 2)
 
 
 def _nearest(table: dict[int, tuple], size: int) -> tuple | None:  # type: ignore[type-arg]

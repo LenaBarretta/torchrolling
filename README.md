@@ -164,11 +164,64 @@ chunks.
 
 ## Benchmarks
 
-Numbers come from [`bench/bench.py`](bench/bench.py), run on Kaggle with
-[`notebooks/kaggle_gpu.ipynb`](notebooks/kaggle_gpu.ipynb). Raw results are in
-[`bench/results/`](bench/results/). Neither folder is part of the installed package.
+Milliseconds, best of 3 runs, lower is better; the fastest in each row is bold. Measured on
+a Tesla T4 (Kaggle) with float32 data, torch 2.11 and Triton 3.6, by
+[`bench/bench.py`](bench/bench.py) via [`notebooks/kaggle_gpu.ipynb`](notebooks/kaggle_gpu.ipynb).
+Each library gets its data where it wants it (tensors on the GPU, a DataFrame for pandas and
+polars), and only the computation is timed. For EWM, `window` is the span. All raw numbers,
+including the CPU runs and float64 accumulation, are in [`bench/results/`](bench/results/).
 
-_GPU results will be added after the first Kaggle run._
+**1,000 series × 10,000 points**
+
+| | window | torchrolling | torch `unfold` | cuDF | pandas | polars |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| mean | 20 | 4.2 | **0.9** | 164 | 247 | 68 |
+|  | 200 | **4.0** | 6.4 | 265 | 262 | 68 |
+|  | 1000 | **3.1** | 38 | 350 | 238 | 62 |
+| std | 20 | 5.1 | **1.2** | 291 | 330 | 98 |
+|  | 200 | **4.4** | 15 | 486 | 356 | 101 |
+|  | 1000 | **2.3** | 80 | 1,487 | 316 | 85 |
+| max | 20 | 3.4 | **1.5** | 154 | 415 | 104 |
+|  | 200 | **2.0** | 3.2 | 170 | 424 | 110 |
+|  | 1000 | **1.9** | 30 | 207 | 386 | 97 |
+| median | 20 | **18** | 142 | — | 4,721 | 480 |
+|  | 200 | **44** | out of memory | — | 5,998 | 425 |
+|  | 1000 | **81** | out of memory | — | 8,293 | 423 |
+| corr | 20 | **8.3** | 64 | — | 1,594 | — |
+|  | 200 | **8.4** | out of memory | — | 1,462 | — |
+|  | 1000 | **7.3** | out of memory | — | 1,416 | — |
+| ewm mean | 20 | **1.1** | — | 948 | 147 | 54 |
+|  | 200 | **1.0** | — | 902 | 137 | 54 |
+|  | 1000 | **1.0** | — | 876 | 137 | 53 |
+
+**10,000 series × 10,000 points** (GPU libraries only)
+
+| | window | torchrolling | torch `unfold` | cuDF |
+| --- | ---: | ---: | ---: | ---: |
+| mean | 20 | 42 | **5.7** | 2,230 |
+|  | 200 | **40** | 50 | 3,200 |
+|  | 1000 | **30** | 262 | 4,055 |
+| std | 20 | 50 | **14** | 3,574 |
+|  | 200 | **40** | 136 | 5,566 |
+|  | 1000 | **27** | 804 | 15,515 |
+| max | 20 | 31 | **9.7** | 2,042 |
+|  | 200 | **22** | 57 | 2,303 |
+|  | 1000 | **19** | 294 | 2,573 |
+| median | 20 | **106** | out of memory | — |
+|  | 200 | **221** | out of memory | — |
+|  | 1000 | **830** | out of memory | — |
+| corr | 20 | **58** | out of memory | — |
+|  | 200 | **50** | out of memory | — |
+|  | 1000 | **48** | out of memory | — |
+| ewm mean | 20 | **5.3** | — | 10,136 |
+|  | 200 | **4.7** | — | 10,117 |
+|  | 1000 | **4.5** | — | 9,648 |
+
+`torch unfold` is the usual plain-torch workaround, for example `x.unfold(-1, w, 1).mean(-1)`:
+it has no missing-value handling and no `min_periods`, and for median and corr it copies a
+tensor `window` times the size of the input. On small windows without missing values it is
+the fastest way to get mean, std or max; everywhere else torchrolling is. "—" means the
+library has no such statistic.
 
 On the CPU, use pandas or polars: they are faster there. torchrolling is for data that is
 already on the GPU.

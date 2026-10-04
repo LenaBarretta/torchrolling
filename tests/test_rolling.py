@@ -214,7 +214,9 @@ def test_failing_kernel_falls_back_to_torch(monkeypatch: pytest.MonkeyPatch) -> 
     kernels = _common._triton  # type: ignore[attr-defined]
     if kernels is None:
         pytest.skip("needs Triton")
-    x = torch.randn(3, 50, dtype=torch.float64)
+    # On a GPU machine only CUDA tensors reach the kernels; elsewhere, the interpreter's CPU.
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    x = torch.randn(3, 50, dtype=torch.float64, device=device)
     want = torchrolling.rolling(x, 5).std()
 
     def broken(*args: object) -> torch.Tensor:
