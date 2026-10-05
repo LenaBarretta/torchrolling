@@ -97,17 +97,16 @@ The test suite checks everything against pandas with property-based tests (hypot
 - integer input becomes the default float dtype; float input keeps its dtype;
 - `interpolation` is one of `linear`, `lower`, `higher`, `midpoint`, `nearest`, as in pandas.
 
-Where pandas itself is wrong, torchrolling gives the correct answer, and the tests compare
-against pandas' algorithm run in exact arithmetic instead:
+Where results can differ from pandas:
 
-- pandas 3.0's rolling `skew`/`kurt` return NaN for every window after two missing values
-  in a row;
-- pandas' bias correction in `ewm(...).var()`/`.cov()` loses digits when the weights have
-  decayed a lot (alpha close to 1, long gaps), and sometimes gives 0 instead of NaN after a
-  single observation;
-- pandas 3.0 changed `ewm(adjust=False).mean()` across missing values, away from its
-  documented weights and from its own `var`/`cov`. torchrolling uses the documented
-  weights (the pandas 2 result) for every method;
+- `ewm(adjust=False)` with missing values and `alpha=0.5` (also `com=1`, `span=3`,
+  `halflife=1`): pandas takes a different formula for that case
+  ([pandas-dev/pandas#66523](https://github.com/pandas-dev/pandas/issues/66523));
+  torchrolling uses the documented weights, as pandas does for every other `alpha`;
+- `ewm(...).var()` and `.cov()` with `bias=False`, when the weights have decayed a lot
+  (`alpha` close to 1, long runs of missing values): torchrolling computes the bias
+  correction without cancellation, so it can differ from pandas from the 8th digit on, and
+  gives NaN rather than 0 after a single observation;
 - `corr` is NaN, not ±inf, where one series is constant in the window.
 
 ### Precision: `acc_dtype`
@@ -168,9 +167,10 @@ Milliseconds, best of 3 runs, lower is better; the fastest in each row is bold. 
 measured with [`bench/bench.py`](bench/bench.py). The GPU columns ran on a Tesla T4 (Kaggle,
 torch 2.11, Triton 3.6, via [`notebooks/kaggle_gpu.ipynb`](notebooks/kaggle_gpu.ipynb));
 pandas and polars ran twice, on that Kaggle machine's CPU and on an Apple M3 Max (16 cores;
-pandas 3.0, polars 1.44). Each library gets its data where it wants it (tensors on the GPU, a DataFrame for
-pandas and polars), and only the computation is timed. For EWM, `window` is the span. All raw
-numbers, including float64 accumulation, are in [`bench/results/`](bench/results/).
+pandas 3.0, polars 1.44). Each library gets its data where it wants it (tensors on the GPU,
+a DataFrame for pandas and polars), and only the computation is timed. For EWM, `window` is
+the span. All raw numbers, including float64 accumulation, are in
+[`bench/results/`](bench/results/).
 
 **1,000 series × 10,000 points**
 

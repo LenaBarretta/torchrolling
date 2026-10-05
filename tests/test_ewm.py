@@ -59,10 +59,10 @@ def exact(
     - pandas computes the bias correction as W^2 - (sum of squared weights), two numbers
       close to 1 once the weights have decayed a lot (alpha near 1, long gaps), so its
       float64 answer can be off in the 8th digit, or 0 instead of NaN after one observation.
-    - pandas 3.0 changed ``mean()`` with adjust=False and ignore_na=False across missing
-      values (``[1, nan, 0]``, alpha=0.5 gives 0.25, not 1/3), against its documented
-      weights and its own ``var``/``cov``, which still give 1/3 as pandas 2 did.
-      torchrolling follows the documented weights everywhere.
+    - pandas special-cases alpha=0.5 (com=1) in ``mean()`` with adjust=False and
+      ignore_na=False across missing values (``[1, nan, 0]`` gives 0.25, not the documented
+      1/3; pandas-dev/pandas#66523). torchrolling follows the documented weights, as pandas
+      does for every other alpha.
     """
     mp.mp.dps = 60
     decay = [params.get(k) for k in ("com", "span", "halflife", "alpha")]
@@ -119,8 +119,10 @@ pairs = st.integers(0, 40).flatmap(
 def test_matches_pandas(
     backend: str, method: str, kw: dict[str, bool], data: list[float], params: dict[str, Any]
 ) -> None:
+    decay = [params.get(k) for k in ("com", "span", "halflife", "alpha")]
     if method == "mean" and not params["adjust"] and not params["ignore_na"]:
-        assume(all(map(math.isfinite, data)))  # see exact() on pandas 3.0's mean
+        # pandas' special case for alpha=0.5 (see exact())
+        assume(_ewm._center_of_mass(*decay) != 1 or all(map(math.isfinite, data)))
     want = getattr(pd.Series(data, dtype="float64").ewm(**params), method)(**kw)
     got = getattr(torchrolling.ewm(torch.tensor(data, dtype=torch.float64), **params), method)(**kw)
     check(got, want)
