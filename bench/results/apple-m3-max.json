@@ -1,0 +1,728 @@
+{
+ "device": "Apple M3 Max (CPU, 12 performance + 4 efficiency cores)",
+ "pandas": "3.0.6",
+ "polars": "1.44.2",
+ "torchrolling": "0.1.0",
+ "rows": [
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "pandas",
+   "seconds": 0.007185042020864785
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "polars",
+   "seconds": 0.0011965420562773943
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "pandas",
+   "seconds": 0.013938958058133721
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "polars",
+   "seconds": 0.0015119171002879739
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "pandas",
+   "seconds": 0.014927624957635999
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "polars",
+   "seconds": 0.001602458069100976
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "pandas",
+   "seconds": 0.22751487500499934
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "polars",
+   "seconds": 0.004290707991458476
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "pandas",
+   "seconds": 0.05418337509036064
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "polars",
+   "error": "not supported (polars has no column-wise rolling corr)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "pandas",
+   "seconds": 0.0048096670070663095
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "polars",
+   "seconds": 0.0016395000275224447
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "pandas",
+   "seconds": 0.0071103330701589584
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "polars",
+   "seconds": 0.0012361248955130577
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "pandas",
+   "seconds": 0.013854625052772462
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "polars",
+   "seconds": 0.001703375019133091
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "pandas",
+   "seconds": 0.014972916920669377
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "polars",
+   "seconds": 0.0014830830041319132
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "pandas",
+   "seconds": 0.2952149589546025
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "polars",
+   "seconds": 0.0041613749926909804
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "pandas",
+   "seconds": 0.05307683302089572
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "polars",
+   "error": "not supported (polars has no column-wise rolling corr)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "pandas",
+   "seconds": 0.005004541017115116
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "polars",
+   "seconds": 0.0012993339914828539
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "pandas",
+   "seconds": 0.00711283297277987
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "polars",
+   "seconds": 0.0011456250213086605
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "pandas",
+   "seconds": 0.013287374982610345
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "polars",
+   "seconds": 0.001811334048397839
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "pandas",
+   "seconds": 0.014564374927431345
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "polars",
+   "seconds": 0.0015772500773891807
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "pandas",
+   "seconds": 0.30748745892196894
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "polars",
+   "seconds": 0.004177166963927448
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "pandas",
+   "seconds": 0.05095779104158282
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "polars",
+   "error": "not supported (polars has no column-wise rolling corr)"
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "pandas",
+   "seconds": 0.004806290962733328
+  },
+  {
+   "shape": [
+    100,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "polars",
+   "seconds": 0.001185790984891355
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "pandas",
+   "seconds": 0.07031520793680102
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "mean",
+   "impl": "polars",
+   "seconds": 0.010147167020477355
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "pandas",
+   "seconds": 0.1375446249730885
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "std",
+   "impl": "polars",
+   "seconds": 0.01327429199591279
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "pandas",
+   "seconds": 0.14903441607020795
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "max",
+   "impl": "polars",
+   "seconds": 0.013012542040087283
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "pandas",
+   "seconds": 2.2393772499635816
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "median",
+   "impl": "polars",
+   "seconds": 0.03988829208537936
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "pandas",
+   "seconds": 0.5260494169779122
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "corr",
+   "impl": "polars",
+   "error": "not supported (polars has no column-wise rolling corr)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "pandas",
+   "seconds": 0.04895966697949916
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 20,
+   "method": "ewm_mean",
+   "impl": "polars",
+   "seconds": 0.009984459029510617
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "pandas",
+   "seconds": 0.07054183399304748
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "mean",
+   "impl": "polars",
+   "seconds": 0.009577124961651862
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "pandas",
+   "seconds": 0.13754724990576506
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "std",
+   "impl": "polars",
+   "seconds": 0.014656833023764193
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "pandas",
+   "seconds": 0.14796241698786616
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "max",
+   "impl": "polars",
+   "seconds": 0.013017207966186106
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "pandas",
+   "seconds": 2.90858233300969
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "median",
+   "impl": "polars",
+   "seconds": 0.03922520799096674
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "pandas",
+   "seconds": 0.5266891659703106
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "corr",
+   "impl": "polars",
+   "error": "not supported (polars has no column-wise rolling corr)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "pandas",
+   "seconds": 0.048615458072163165
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 200,
+   "method": "ewm_mean",
+   "impl": "polars",
+   "seconds": 0.009853416006080806
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "pandas",
+   "seconds": 0.07083054108079523
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "mean",
+   "impl": "polars",
+   "seconds": 0.00928337499499321
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "pandas",
+   "seconds": 0.13260095799341798
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "std",
+   "impl": "polars",
+   "seconds": 0.014362832996994257
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "pandas",
+   "seconds": 0.14820204093120992
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "max",
+   "impl": "polars",
+   "seconds": 0.012421959079802036
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "pandas",
+   "seconds": 3.080510333995335
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "median",
+   "impl": "polars",
+   "seconds": 0.036665958003140986
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "pandas",
+   "seconds": 0.5118382079526782
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "corr",
+   "impl": "polars",
+   "error": "not supported (polars has no column-wise rolling corr)"
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "pandas",
+   "seconds": 0.048521499964408576
+  },
+  {
+   "shape": [
+    1000,
+    10000
+   ],
+   "window": 1000,
+   "method": "ewm_mean",
+   "impl": "polars",
+   "seconds": 0.011127957957796752
+  }
+ ]
+}

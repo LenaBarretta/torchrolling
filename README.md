@@ -164,35 +164,36 @@ chunks.
 
 ## Benchmarks
 
-Milliseconds, best of 3 runs, lower is better; the fastest in each row is bold. Measured on
-a Tesla T4 (Kaggle) with float32 data, torch 2.11 and Triton 3.6, by
-[`bench/bench.py`](bench/bench.py) via [`notebooks/kaggle_gpu.ipynb`](notebooks/kaggle_gpu.ipynb).
-Each library gets its data where it wants it (tensors on the GPU, a DataFrame for pandas and
-polars), and only the computation is timed. For EWM, `window` is the span. All raw numbers,
-including the CPU runs and float64 accumulation, are in [`bench/results/`](bench/results/).
+Milliseconds, best of 3 runs, lower is better; the fastest in each row is bold. float32 data,
+measured with [`bench/bench.py`](bench/bench.py). The GPU columns ran on a Tesla T4 (Kaggle,
+torch 2.11, Triton 3.6, via [`notebooks/kaggle_gpu.ipynb`](notebooks/kaggle_gpu.ipynb));
+pandas and polars ran twice, on that Kaggle machine's CPU and on an Apple M3 Max (16 cores;
+pandas 3.0, polars 1.44). Each library gets its data where it wants it (tensors on the GPU, a DataFrame for
+pandas and polars), and only the computation is timed. For EWM, `window` is the span. All raw
+numbers, including float64 accumulation, are in [`bench/results/`](bench/results/).
 
 **1,000 series × 10,000 points**
 
-| | window | torchrolling | torch `unfold` | cuDF | pandas | polars |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: |
-| mean | 20 | 4.2 | **0.9** | 164 | 247 | 68 |
-|  | 200 | **4.0** | 6.4 | 265 | 262 | 68 |
-|  | 1000 | **3.1** | 38 | 350 | 238 | 62 |
-| std | 20 | 5.1 | **1.2** | 291 | 330 | 98 |
-|  | 200 | **4.4** | 15 | 486 | 356 | 101 |
-|  | 1000 | **2.3** | 80 | 1,487 | 316 | 85 |
-| max | 20 | 3.4 | **1.5** | 154 | 415 | 104 |
-|  | 200 | **2.0** | 3.2 | 170 | 424 | 110 |
-|  | 1000 | **1.9** | 30 | 207 | 386 | 97 |
-| median | 20 | **18** | 142 | — | 4,721 | 480 |
-|  | 200 | **44** | out of memory | — | 5,998 | 425 |
-|  | 1000 | **81** | out of memory | — | 8,293 | 423 |
-| corr | 20 | **8.3** | 64 | — | 1,594 | — |
-|  | 200 | **8.4** | out of memory | — | 1,462 | — |
-|  | 1000 | **7.3** | out of memory | — | 1,416 | — |
-| ewm mean | 20 | **1.1** | — | 948 | 147 | 54 |
-|  | 200 | **1.0** | — | 902 | 137 | 54 |
-|  | 1000 | **1.0** | — | 876 | 137 | 53 |
+| | window | torchrolling<br>T4 | torch `unfold`<br>T4 | cuDF<br>T4 | pandas<br>Kaggle CPU | polars<br>Kaggle CPU | pandas<br>M3 Max | polars<br>M3 Max |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| mean | 20 | 4.2 | **0.9** | 164 | 247 | 68 | 70 | 10 |
+|  | 200 | **4.0** | 6.4 | 265 | 262 | 68 | 71 | 9.6 |
+|  | 1000 | **3.1** | 38 | 350 | 238 | 62 | 71 | 9.3 |
+| std | 20 | 5.1 | **1.2** | 291 | 330 | 98 | 138 | 13 |
+|  | 200 | **4.4** | 15 | 486 | 356 | 101 | 138 | 15 |
+|  | 1000 | **2.3** | 80 | 1,487 | 316 | 85 | 133 | 14 |
+| max | 20 | 3.4 | **1.5** | 154 | 415 | 104 | 149 | 13 |
+|  | 200 | **2.0** | 3.2 | 170 | 424 | 110 | 148 | 13 |
+|  | 1000 | **1.9** | 30 | 207 | 386 | 97 | 148 | 12 |
+| median | 20 | **18** | 142 | — | 4,721 | 480 | 2,239 | 40 |
+|  | 200 | 44 | out of memory | — | 5,998 | 425 | 2,909 | **39** |
+|  | 1000 | 81 | out of memory | — | 8,293 | 423 | 3,081 | **37** |
+| corr | 20 | **8.3** | 64 | — | 1,594 | — | 526 | — |
+|  | 200 | **8.4** | out of memory | — | 1,462 | — | 527 | — |
+|  | 1000 | **7.3** | out of memory | — | 1,416 | — | 512 | — |
+| ewm mean | 20 | **1.1** | — | 948 | 147 | 54 | 49 | 10.0 |
+|  | 200 | **1.0** | — | 902 | 137 | 54 | 49 | 9.9 |
+|  | 1000 | **1.0** | — | 876 | 137 | 53 | 49 | 11 |
 
 **10,000 series × 10,000 points** (GPU libraries only)
 
@@ -223,13 +224,18 @@ tensor `window` times the size of the input. On small windows without missing va
 the fastest way to get mean, std or max; everywhere else torchrolling is. "—" means the
 library has no such statistic.
 
-**Reading these numbers honestly.** Part of the gap to pandas and polars is simply a GPU
-against a modest CPU: Kaggle gives them 2–4 cores, and on a large many-core server polars
-would close much of it. That is the situation torchrolling is for (data already on the GPU),
-but on the CPU, use pandas or polars: they are faster there. cuDF is measured at its weakest
-shape, thousands of short columns, which it processes one by one; on a few long series it
-would be much closer. Transfers between CPU and GPU are not timed, and neither is the first
-call of each statistic, which compiles its Triton kernel (a few seconds, then cached on disk).
+**Reading these numbers honestly.** Much of the gap to pandas and polars is a GPU against a
+CPU, and it depends on the CPU: on the M3 Max, polars runs 5–7 times faster than on Kaggle's
+CPU. One comparison goes the other way. For rolling median with windows of 200 and 1000,
+polars on the M3 Max takes 39 and 37 ms, against torchrolling's 44 and 81 ms on the T4 (a
+2018 inference GPU). Those polars times leave out what it takes to get data that already
+lives on the GPU into polars: copying it to the CPU and the result back (40 MB each way for
+this table) and building the DataFrame. So where the data lives decides: if it is already
+on the GPU, sending it to the CPU rarely pays off; if it is on the CPU, weigh the copy to the
+GPU, and staying on the CPU with pandas or polars may well be the better choice. cuDF is
+measured at its weakest shape, thousands of short columns, which it processes one by one; on
+a few long series it would be much closer. The first call of each statistic, which compiles
+its Triton kernel (a few seconds, then cached on disk), is not timed either.
 
 The kernels' launch configurations were tuned on a T4. Results are the same on every GPU;
 only speed can differ. On a GPU or system where a kernel cannot run, torchrolling warns once
